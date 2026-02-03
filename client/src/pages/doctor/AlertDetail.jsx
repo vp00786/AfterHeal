@@ -36,12 +36,38 @@ const ALERT_DETAILS = {
         recentMisses: 1,
         notes: 'Required to adjust pain medication.'
     },
+    '3': {
+        id: '3',
+        patientId: 'p3',
+        patientName: 'Linda Hamilton',
+        age: 62,
+        condition: 'Hypertension',
+        task: 'Blood Pressure Check',
+        type: 'Vitals',
+        dosage: 'N/A',
+        scheduledTime: 'Today, 08:00 AM',
+        missedDuration: '2 hours ago',
+        status: 'critical',
+        adherenceRate: 58,
+        recentMisses: 4,
+        notes: 'High risk of spike. Immediate check required.'
+    },
     // Fallback for demo
     'default': {
         id: '0',
         patientName: 'Unknown Patient',
+        patientId: 'unknown',
+        age: 0,
+        condition: 'Unknown',
         task: 'Unknown Task',
-        status: 'warning'
+        type: 'Unknown',
+        dosage: '',
+        scheduledTime: '',
+        missedDuration: '',
+        status: 'warning',
+        adherenceRate: 0,
+        recentMisses: 0,
+        notes: 'Alert not found.'
     }
 };
 
@@ -51,13 +77,21 @@ const AlertDetail = () => {
     const [reviewed, setReviewed] = useState(false);
 
     // In real app, fetch alert by ID
-    const alertData = ALERT_DETAILS[id] || ALERT_DETAILS['1']; // Default to 1 for demo if ID missing
+    const alertData = ALERT_DETAILS[id] || ALERT_DETAILS['default'];
 
     const handleMarkReviewed = () => {
+        // Persist resolution to localStorage to update the list view
+        if (id) {
+            const resolved = JSON.parse(localStorage.getItem('resolvedAlerts') || '[]');
+            if (!resolved.includes(id)) {
+                localStorage.setItem('resolvedAlerts', JSON.stringify([...resolved, id]));
+            }
+        }
+
         setReviewed(true);
         setTimeout(() => {
             navigate('/doctor/alerts'); // Go back to list
-        }, 1000);
+        }, 1500);
     };
 
     if (reviewed) {

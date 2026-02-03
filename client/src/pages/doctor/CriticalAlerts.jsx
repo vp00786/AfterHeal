@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, AlertTriangle, Check, Clock } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const INITIAL_ALERTS = [
     { id: 1, patient: 'Sarah Connor', issue: "Missed 'Post-Op Antibiotics' (2nd dose)", time: "20 mins ago", severity: 'critical' },
@@ -12,7 +12,19 @@ const CriticalAlerts = () => {
     const navigate = useNavigate();
     const [alerts, setAlerts] = useState(INITIAL_ALERTS);
 
+    useEffect(() => {
+        const resolved = JSON.parse(localStorage.getItem('resolvedAlerts') || '[]');
+        if (resolved.length > 0) {
+            setAlerts(prev => prev.filter(a => !resolved.includes(String(a.id))));
+        }
+    }, []);
+
     const handleDismiss = (id) => {
+        // Persist dismissal
+        const resolved = JSON.parse(localStorage.getItem('resolvedAlerts') || '[]');
+        if (!resolved.includes(String(id))) {
+            localStorage.setItem('resolvedAlerts', JSON.stringify([...resolved, String(id)]));
+        }
         setAlerts(alerts.filter(a => a.id !== id));
     };
 
