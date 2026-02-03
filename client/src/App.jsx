@@ -11,6 +11,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import MyPatients from './pages/doctor/MyPatients';
 import CreatePrescription from './pages/doctor/CreatePrescription';
 import AdherenceReports from './pages/doctor/AdherenceReports';
+import PatientTimeline from './pages/doctor/PatientTimeline'; // New
 import PatientRecords from './pages/doctor/PatientRecords';
 import CriticalAlerts from './pages/doctor/CriticalAlerts';
 import AlertDetail from './pages/doctor/AlertDetail'; // New
@@ -47,6 +48,7 @@ function App() {
             <Route path="/doctor/patients" element={<MyPatients />} />
             <Route path="/doctor/prescriptions" element={<CreatePrescription />} />
             <Route path="/doctor/adherence" element={<AdherenceReports />} />
+            <Route path="/doctor/adherence/:patientId" element={<PatientTimeline />} />
             <Route path="/doctor/records" element={<PatientRecords />} />
             <Route path="/doctor/alerts" element={<CriticalAlerts />} />
             <Route path="/doctor/alerts/:id" element={<AlertDetail />} />

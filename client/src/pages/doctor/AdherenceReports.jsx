@@ -62,11 +62,15 @@ const AdherenceReports = () => {
                 </div>
                 <div className="divide-y divide-gray-100">
                     {sortedData.map((patient) => (
-                        <div key={patient.id} className="p-6 hover:bg-gray-50 transition-colors flex items-center justify-between group cursor-pointer">
+                        <div
+                            key={patient.id}
+                            className="p-6 hover:bg-gray-50 transition-colors flex items-center justify-between group cursor-pointer"
+                            onClick={() => navigate(`/doctor/adherence/${patient.id}`)}
+                        >
                             <div className="flex items-center gap-4">
                                 <div className={`h-10 w-10 rounded-full flex items-center justify-center text-sm font-bold ${patient.status === 'critical' ? 'bg-red-100 text-red-600' :
-                                        patient.status === 'warning' ? 'bg-amber-100 text-amber-600' :
-                                            'bg-emerald-100 text-emerald-600'
+                                    patient.status === 'warning' ? 'bg-amber-100 text-amber-600' :
+                                        'bg-emerald-100 text-emerald-600'
                                     }`}>
                                     {patient.adherence}%
                                 </div>
@@ -80,8 +84,8 @@ const AdherenceReports = () => {
                                 <div className="h-2 w-full bg-gray-100 rounded-full overflow-hidden">
                                     <div
                                         className={`h-full rounded-full ${patient.status === 'critical' ? 'bg-red-500' :
-                                                patient.status === 'warning' ? 'bg-amber-500' :
-                                                    'bg-emerald-500'
+                                            patient.status === 'warning' ? 'bg-amber-500' :
+                                                'bg-emerald-500'
                                             }`}
                                         style={{ width: `${patient.adherence}%` }}
                                     />
