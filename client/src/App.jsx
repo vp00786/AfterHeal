@@ -11,7 +11,9 @@ import ProtectedRoute from './components/ProtectedRoute';
 import MyPatients from './pages/doctor/MyPatients';
 import CreatePrescription from './pages/doctor/CreatePrescription';
 import AdherenceReports from './pages/doctor/AdherenceReports';
-import PatientTimeline from './pages/doctor/PatientTimeline'; // New
+import PatientTimeline from './pages/doctor/PatientTimeline';
+import PatientChecklist from './pages/patient/PatientChecklist';
+import DoctorChecklist from './pages/patient/DoctorChecklist'; // New
 import PatientRecords from './pages/doctor/PatientRecords';
 import CriticalAlerts from './pages/doctor/CriticalAlerts';
 import AlertDetail from './pages/doctor/AlertDetail'; // New
@@ -53,6 +55,10 @@ function App() {
             <Route path="/doctor/alerts" element={<CriticalAlerts />} />
             <Route path="/doctor/alerts/:id" element={<AlertDetail />} />
             <Route path="/doctor/settings" element={<DoctorSettings />} />
+
+            {/* Patient Routes */}
+            <Route path="/patient/checklist" element={<PatientChecklist />} />
+            <Route path="/patient/doctor/:doctorId" element={<DoctorChecklist />} />
           </Route>
         </Routes>
       </AuthProvider>

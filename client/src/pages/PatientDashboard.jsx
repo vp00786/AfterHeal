@@ -1,11 +1,13 @@
+import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import api from '../api/axios';
 import { useAuth } from '../context/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle2, Circle, Clock, LogOut, Pill, Activity, Sun } from 'lucide-react';
+import { CheckCircle2, Circle, Clock, LogOut, Pill, Activity, Sun, Upload, FileText, Stethoscope, ChevronRight } from 'lucide-react';
 import clsx from 'clsx';
 
 const PatientDashboard = () => {
+    const navigate = useNavigate();
     const { user, logout } = useAuth();
     const [tasks, setTasks] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -74,11 +76,19 @@ const PatientDashboard = () => {
 
             {/* Main Content */}
             <main className="p-6 max-w-xl mx-auto space-y-6">
-                <div className="flex justify-between items-baseline mb-2">
-                    <h2 className="text-2xl font-bold text-slate-800">Your Plan</h2>
-                    <span className="text-slate-500 text-sm font-medium">
-                        {new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}
-                    </span>
+                <div className="flex justify-between items-center mb-6">
+                    <div>
+                        <h2 className="text-2xl font-bold text-slate-800">Your Plan</h2>
+                        <span className="text-slate-500 text-sm font-medium">
+                            {new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}
+                        </span>
+                    </div>
+                    <button
+                        onClick={() => navigate('/patient/checklist')}
+                        className="bg-blue-50 text-blue-600 px-4 py-2 rounded-xl text-sm font-bold hover:bg-blue-100 transition-colors"
+                    >
+                        View Checklist
+                    </button>
                 </div>
 
                 {loading ? (
@@ -163,6 +173,84 @@ const PatientDashboard = () => {
                         </AnimatePresence>
                     </div>
                 )}
+
+                {/* My Care Team Section */}
+                <div className="mt-8 pt-8 border-t border-gray-100">
+                    <h2 className="text-xl font-bold text-slate-800 mb-4">My Care Team</h2>
+                    <div className="grid grid-cols-1 gap-4">
+                        <div
+                            onClick={() => navigate('/patient/doctor/d1')}
+                            className="bg-white p-4 rounded-2xl flex items-center justify-between border border-gray-100 shadow-sm hover:shadow-md transition-all cursor-pointer group"
+                        >
+                            <div className="flex items-center gap-4">
+                                <div className="bg-emerald-100 h-12 w-12 rounded-full flex items-center justify-center text-emerald-600">
+                                    <Stethoscope className="h-6 w-6" />
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-gray-900">Dr. Emily Chen</h3>
+                                    <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">Orthopedics</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <span className="bg-emerald-50 text-emerald-600 text-xs font-bold px-2 py-1 rounded-full">
+                                    3 active
+                                </span>
+                                <ChevronRight className="h-5 w-5 text-gray-300 group-hover:text-emerald-500 transition-colors" />
+                            </div>
+                        </div>
+
+                        <div
+                            onClick={() => navigate('/patient/doctor/d2')}
+                            className="bg-white p-4 rounded-2xl flex items-center justify-between border border-gray-100 shadow-sm hover:shadow-md transition-all cursor-pointer group"
+                        >
+                            <div className="flex items-center gap-4">
+                                <div className="bg-blue-100 h-12 w-12 rounded-full flex items-center justify-center text-blue-600">
+                                    <Activity className="h-6 w-6" />
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-gray-900">Dr. Michael Ross</h3>
+                                    <p className="text-xs text-gray-500 font-medium uppercase tracking-wider">Cardiology</p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <span className="bg-blue-50 text-blue-600 text-xs font-bold px-2 py-1 rounded-full">
+                                    2 active
+                                </span>
+                                <ChevronRight className="h-5 w-5 text-gray-300 group-hover:text-blue-500 transition-colors" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Upload Reports Section */}
+                <div className="mt-8 pt-8 border-t border-gray-100">
+                    <h2 className="text-xl font-bold text-slate-800 mb-4">Upload Medical Reports</h2>
+
+                    <div className="bg-white p-6 rounded-3xl border border-dashed border-gray-300 text-center hover:bg-gray-50 transition-colors cursor-pointer group">
+                        <div className="bg-blue-50 h-16 w-16 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
+                            <Upload className="h-8 w-8 text-blue-600" />
+                        </div>
+                        <h3 className="font-bold text-gray-900">Tap to Upload</h3>
+                        <p className="text-sm text-gray-500 mt-1">Prescriptions, Lab Results, or X-Rays</p>
+                        <input type="file" className="hidden" />
+                    </div>
+
+                    <div className="mt-4 space-y-3">
+                        {/* Mock Recent Upload */}
+                        <div className="bg-white p-4 rounded-2xl flex items-center gap-4 shadow-sm border border-gray-100">
+                            <div className="bg-purple-100 p-3 rounded-xl">
+                                <FileText className="h-6 w-6 text-purple-600" />
+                            </div>
+                            <div className="flex-1">
+                                <h4 className="font-bold text-gray-900 text-sm">Blood_Test_Results.pdf</h4>
+                                <p className="text-xs text-gray-500">Uploaded Today, 10:30 AM</p>
+                            </div>
+                            <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded">
+                                Sent
+                            </span>
+                        </div>
+                    </div>
+                </div>
             </main>
         </div>
     );
