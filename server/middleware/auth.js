@@ -1,6 +1,5 @@
 const jwt = require('jsonwebtoken');
-// const User = require('../models/User');
-const { users } = require('../data/mockStore');
+const supabase = require('../config/supabaseClient');
 
 const protect = async (req, res, next) => {
     let token;
@@ -11,16 +10,21 @@ const protect = async (req, res, next) => {
     ) {
         try {
             token = req.headers.authorization.split(' ')[1];
-            const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret'); // Match secret in authController
+            const decoded = jwt.verify(token, process.env.JWT_SECRET || 'secret');
 
-            // Mock User Lookup
-            const user = users.find(u => u._id === decoded.id);
+            // Supabase User Lookup
+            const { data: user, error } = await supabase
+                .from('users')
+                .select('*')
+                .eq('_id', decoded.id)
+                .single();
 
-            if (!user) {
+            if (error || !user) {
+                console.error('Auth Middleware Error:', error ? error.message : 'User not found');
                 return res.status(401).json({ message: 'Not authorized, user not found' });
             }
 
-            req.user = { ...user };
+            req.user = user;
             delete req.user.password;
 
             next();

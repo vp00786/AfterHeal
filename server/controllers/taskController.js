@@ -1,7 +1,4 @@
-// const Task = require('../models/Task');
-// const User = require('../models/User');
-// const Alert = require('../models/Alert');
-const { tasks, alerts, users } = require('../data/mockStore');
+const supabase = require('../config/supabaseClient');
 
 // @desc    Create a new task (Doctor only)
 // @route   POST /api/tasks
@@ -10,22 +7,30 @@ const createTask = async (req, res) => {
     const { title, description, type, priority, patientId, scheduledTime } = req.body;
 
     try {
-        const newTask = {
+        const newTaskCtx = {
             _id: String(Date.now()),
             title,
             description,
             type,
             priority,
-            patient: patientId, // ID string
+            patient: patientId,
             assignedBy: req.user._id,
-            scheduledTime: new Date(scheduledTime),
+            scheduledTime,
             isCompleted: false,
-            createdAt: new Date()
+            createdAt: new Date().toISOString()
         };
 
-        tasks.push(newTask);
-        res.status(201).json(newTask);
+        const { data: task, error } = await supabase
+            .from('tasks')
+            .insert([newTaskCtx])
+            .select()
+            .single();
+
+        if (error) throw error;
+
+        res.status(201).json(task);
     } catch (error) {
+        console.error('Create Task Error:', error.message);
         res.status(400).json({ message: 'Invalid task data' });
     }
 };
@@ -35,36 +40,29 @@ const createTask = async (req, res) => {
 // @access  Private
 const getTasks = async (req, res) => {
     try {
-        let resultTasks = [];
-        if (req.user.role === 'patient') {
-            resultTasks = tasks.filter(t => t.patient === req.user._id);
-        } else if (req.user.role === 'doctor') {
-            // Filter by doctor? or patientId?
-            const patientId = req.query.patientId;
-            resultTasks = tasks.filter(t => t.assignedBy === req.user._id);
-            if (patientId) {
-                resultTasks = resultTasks.filter(t => t.patient === patientId);
-            }
+        // Ensuring we fetch patient details (name) similar to population
+        let query = supabase.from('tasks').select('*, patient:users!patient(name, _id)');
 
-            // Populate patient name manually
-            resultTasks = resultTasks.map(t => {
-                const p = users.find(u => u._id === t.patient);
-                return { ...t, patient: { name: p ? p.name : 'Unknown' } };
-            });
+        if (req.user.role === 'patient') {
+            query = query.eq('patient', req.user._id);
+        } else if (req.user.role === 'doctor') {
+            query = query.eq('assignedBy', req.user._id);
+            if (req.query.patientId) {
+                query = query.eq('patient', req.query.patientId);
+            }
         } else if (req.user.role === 'caregiver') {
-            const patientId = req.user.relatedPatient;
-            if (!patientId) {
+            if (!req.user.relatedPatient) {
                 return res.status(400).json({ message: 'No patient linked to caregiver' });
             }
-            resultTasks = tasks.filter(t => t.patient === patientId);
+            query = query.eq('patient', req.user.relatedPatient);
         }
 
-        // Sort
-        resultTasks.sort((a, b) => new Date(b.scheduledTime) - new Date(a.scheduledTime));
+        const { data: tasks, error } = await query.order('scheduledTime', { ascending: false });
+        if (error) throw error;
 
-        res.json(resultTasks);
+        res.json(tasks);
     } catch (error) {
-        console.error(error);
+        console.error('Get Tasks Error:', error.message);
         res.status(500).json({ message: 'Server Error' });
     }
 };
@@ -74,9 +72,14 @@ const getTasks = async (req, res) => {
 // @access  Patient
 const completeTask = async (req, res) => {
     try {
-        const task = tasks.find(t => t._id === req.params.id);
+        // Fetch first to check ownership
+        const { data: task, error: fetchError } = await supabase
+            .from('tasks')
+            .select('*')
+            .eq('_id', req.params.id)
+            .single();
 
-        if (!task) {
+        if (fetchError || !task) {
             return res.status(404).json({ message: 'Task not found' });
         }
 
@@ -84,11 +87,21 @@ const completeTask = async (req, res) => {
             return res.status(401).json({ message: 'Not authorized' });
         }
 
-        task.isCompleted = true;
-        task.completedAt = new Date();
+        const { data: updatedTask, error: updateError } = await supabase
+            .from('tasks')
+            .update({
+                isCompleted: true,
+                completedAt: new Date().toISOString()
+            })
+            .eq('_id', req.params.id)
+            .select()
+            .single();
 
-        res.json(task);
+        if (updateError) throw updateError;
+
+        res.json(updatedTask);
     } catch (error) {
+        console.error('Complete Task Error:', error.message);
         res.status(500).json({ message: 'Server Error' });
     }
 };
@@ -96,15 +109,24 @@ const completeTask = async (req, res) => {
 // SYSTEM FUNCTION: Check for missed tasks (To be called by Cron)
 const checkOverdueTasks = async () => {
     try {
-        const now = new Date();
+        const now = new Date().toISOString();
 
-        const overdueTasks = tasks.filter(t =>
-            !t.isCompleted && new Date(t.scheduledTime) < now
-        );
+        const { data: overdueTasks } = await supabase
+            .from('tasks')
+            .select('*')
+            .eq('isCompleted', false)
+            .lt('scheduledTime', now);
+
+        if (!overdueTasks) return;
 
         for (const task of overdueTasks) {
-            // Check if alert already exists for this task
-            const existingAlert = alerts.find(a => a.task === task._id);
+            // Check existing alert
+            const { data: existingAlert } = await supabase
+                .from('alerts')
+                .select('_id')
+                .eq('task', task._id)
+                .single();
+
             if (existingAlert) continue;
 
             let recipientId;
@@ -112,14 +134,18 @@ const checkOverdueTasks = async () => {
             let severity;
 
             if (task.priority === 'critical') {
-                // Notify Doctor
                 recipientId = task.assignedBy;
-                message = `CRITICAL: Patient missed ${task.title} scheduled at ${task.scheduledTime}`;
+                message = `CRITICAL: Patient missed ${task.title} at ${new Date(task.scheduledTime).toLocaleTimeString()}`;
                 severity = 'critical';
             } else {
-                // Notify Caregiver
-                // FIND caregiver linked to this patient in users array
-                const caregiver = users.find(u => u.relatedPatient === task.patient && u.role === 'caregiver');
+                // Find caregiver
+                const { data: caregiver } = await supabase
+                    .from('users')
+                    .select('_id')
+                    .eq('relatedPatient', task.patient)
+                    .eq('role', 'caregiver')
+                    .single();
+
                 if (caregiver) {
                     recipientId = caregiver._id;
                     message = `Patient missed ${task.title}. Please check in.`;
@@ -128,20 +154,19 @@ const checkOverdueTasks = async () => {
             }
 
             if (recipientId) {
-                const newAlert = {
+                await supabase.from('alerts').insert([{
                     _id: String(Date.now() + Math.random()),
                     task: task._id,
                     recipient: recipientId,
                     message,
                     severity,
-                    createdAt: new Date()
-                };
-                alerts.push(newAlert);
+                    createdAt: new Date().toISOString()
+                }]);
                 console.log(`Alert sent to ${recipientId} for task ${task.title}`);
             }
         }
     } catch (error) {
-        console.error('Error checking overdue tasks:', error);
+        console.error('Error checking overdue tasks:', error.message);
     }
 };
 
