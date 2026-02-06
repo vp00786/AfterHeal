@@ -97,4 +97,21 @@ const loginUser = async (req, res) => {
     }
 };
 
-module.exports = { registerUser, loginUser };
+// @desc    Get all users
+// @route   GET /api/auth/users
+// @access  Private
+const getAllUsers = async (req, res) => {
+    try {
+        const { data: users, error } = await supabase
+            .from('users')
+            .select('_id, name, email, role, assignedDoctor');
+
+        if (error) throw error;
+        res.json(users);
+    } catch (error) {
+        console.error('Get Users Error:', error.message);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
+module.exports = { registerUser, loginUser, getAllUsers };

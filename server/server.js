@@ -28,6 +28,7 @@ app.use(morgan('dev'));
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/tasks', require('./routes/taskRoutes'));
+app.use('/api/records', require('./routes/recordRoutes'));
 
 app.get('/', (req, res) => {
     res.send('AfterHeal API is running...');

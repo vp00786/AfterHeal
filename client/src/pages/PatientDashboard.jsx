@@ -11,6 +11,8 @@ const PatientDashboard = () => {
     const { user, logout } = useAuth();
     const [tasks, setTasks] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [uploading, setUploading] = useState(false);
+    const [recentUploads, setRecentUploads] = useState([]);
 
     const fetchTasks = async () => {
         try {
@@ -25,7 +27,35 @@ const PatientDashboard = () => {
 
     useEffect(() => {
         fetchTasks();
-    }, []);
+        if (user?._id) {
+            api.get(`/records/${user._id}`).then(({ data }) => {
+                setRecentUploads(data.slice(0, 3));
+            }).catch(err => console.error("Failed to fetch uploads", err));
+        }
+    }, [user?._id]);
+
+    const handleFileUpload = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        setUploading(true);
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('title', file.name);
+        formData.append('description', 'Uploaded via Dashboard');
+
+        try {
+            await api.post('/records/upload', formData);
+            const { data } = await api.get(`/records/${user._id}`);
+            setRecentUploads(data.slice(0, 3));
+            alert('File uploaded successfully!');
+        } catch (error) {
+            console.error("Upload failed", error);
+            alert('Upload failed. Please try again.');
+        } finally {
+            setUploading(false);
+        }
+    };
 
     const handleComplete = async (taskId) => {
         try {
@@ -226,29 +256,54 @@ const PatientDashboard = () => {
                 <div className="mt-8 pt-8 border-t border-gray-100">
                     <h2 className="text-xl font-bold text-slate-800 mb-4">Upload Medical Reports</h2>
 
-                    <div className="bg-white p-6 rounded-3xl border border-dashed border-gray-300 text-center hover:bg-gray-50 transition-colors cursor-pointer group">
+                    <label className={clsx(
+                        "block bg-white p-6 rounded-3xl border border-dashed border-gray-300 text-center transition-colors cursor-pointer group hover:bg-gray-50",
+                        uploading && "opacity-50 cursor-wait"
+                    )}>
                         <div className="bg-blue-50 h-16 w-16 rounded-full flex items-center justify-center mx-auto mb-3 group-hover:scale-110 transition-transform">
-                            <Upload className="h-8 w-8 text-blue-600" />
+                            {uploading ? (
+                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                            ) : (
+                                <Upload className="h-8 w-8 text-blue-600" />
+                            )}
                         </div>
-                        <h3 className="font-bold text-gray-900">Tap to Upload</h3>
+                        <h3 className="font-bold text-gray-900">{uploading ? 'Uploading...' : 'Tap to Upload'}</h3>
                         <p className="text-sm text-gray-500 mt-1">Prescriptions, Lab Results, or X-Rays</p>
-                        <input type="file" className="hidden" />
-                    </div>
+                        <input
+                            type="file"
+                            className="hidden"
+                            accept=".pdf,.jpg,.jpeg,.png"
+                            onChange={handleFileUpload}
+                            disabled={uploading}
+                        />
+                    </label>
 
                     <div className="mt-4 space-y-3">
-                        {/* Mock Recent Upload */}
-                        <div className="bg-white p-4 rounded-2xl flex items-center gap-4 shadow-sm border border-gray-100">
-                            <div className="bg-purple-100 p-3 rounded-xl">
-                                <FileText className="h-6 w-6 text-purple-600" />
-                            </div>
-                            <div className="flex-1">
-                                <h4 className="font-bold text-gray-900 text-sm">Blood_Test_Results.pdf</h4>
-                                <p className="text-xs text-gray-500">Uploaded Today, 10:30 AM</p>
-                            </div>
-                            <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded">
-                                Sent
-                            </span>
-                        </div>
+                        {recentUploads.length > 0 ? (
+                            recentUploads.map(file => (
+                                <div key={file._id} className="bg-white p-4 rounded-2xl flex items-center gap-4 shadow-sm border border-gray-100">
+                                    <div className="bg-purple-100 p-3 rounded-xl">
+                                        <FileText className="h-6 w-6 text-purple-600" />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <h4 className="font-bold text-gray-900 text-sm truncate">{file.title}</h4>
+                                        <p className="text-xs text-gray-500">{new Date(file.uploadedAt).toLocaleDateString()}</p>
+                                    </div>
+                                    <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded">
+                                        Sent
+                                    </span>
+                                </div>
+                            ))
+                        ) : (
+                            <p className="text-center text-gray-400 text-sm py-4">No recent uploads</p>
+                        )}
+
+                        <button
+                            onClick={() => navigate('/patient/records')}
+                            className="w-full text-center text-blue-600 font-bold text-sm hover:underline mt-2"
+                        >
+                            View All Records
+                        </button>
                     </div>
                 </div>
             </main>

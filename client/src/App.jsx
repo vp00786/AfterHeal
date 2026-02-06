@@ -12,14 +12,14 @@ import MyPatients from './pages/doctor/MyPatients';
 import CreatePrescription from './pages/doctor/CreatePrescription';
 import AdherenceReports from './pages/doctor/AdherenceReports';
 import PatientTimeline from './pages/doctor/PatientTimeline';
-import PatientChecklist from './pages/patient/PatientChecklist';
-import DoctorChecklist from './pages/patient/DoctorChecklist'; // New
 import PatientRecords from './pages/doctor/PatientRecords';
 import CriticalAlerts from './pages/doctor/CriticalAlerts';
-import AlertDetail from './pages/doctor/AlertDetail'; // New
+import AlertDetail from './pages/doctor/AlertDetail';
 import DoctorSettings from './pages/doctor/DoctorSettings';
-// DoctorSettings is still imported just in case, but replaced in Quick Actions unless user clicks URL manually. 
-// Actually I'll keep the route for settings too.
+
+import PatientChecklist from './pages/patient/PatientChecklist';
+import DoctorChecklist from './pages/patient/DoctorChecklist';
+import MedicalRecords from './pages/patient/MedicalRecords';
 
 const DashboardRedirect = () => {
   const { user } = useAuth();
@@ -59,11 +59,13 @@ function App() {
             {/* Patient Routes */}
             <Route path="/patient/checklist" element={<PatientChecklist />} />
             <Route path="/patient/doctor/:doctorId" element={<DoctorChecklist />} />
+            <Route path="/patient/records" element={<MedicalRecords />} />
           </Route>
         </Routes>
       </AuthProvider>
     </Router>
   );
 }
+
 
 export default App;
