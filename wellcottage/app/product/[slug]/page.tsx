@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, use } from "react";
 import { Minus, Plus, Heart, ShoppingCart, ArrowLeft, Star, Package, Weight } from "lucide-react";
 import Link from "next/link";
 import { getProductBySlug, getRelatedProducts } from "@/lib/products";
@@ -8,11 +8,12 @@ import { useStore } from "@/lib/store";
 import ProductCard from "@/components/ProductCard";
 
 interface ProductPageProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 export default function ProductPage({ params }: ProductPageProps) {
-  const product = getProductBySlug(params.slug);
+  const { slug } = use(params);
+  const product = getProductBySlug(slug);
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
   const [addedToCart, setAddedToCart] = useState(false);
@@ -40,6 +41,8 @@ export default function ProductPage({ params }: ProductPageProps) {
     setTimeout(() => setAddedToCart(false), 2000);
   };
 
+  const categorySlug = product.category.toLowerCase().replace(" ", "-");
+
   return (
     <div className="min-h-screen bg-[#f5f1ea]">
       {/* Breadcrumb */}
@@ -47,7 +50,7 @@ export default function ProductPage({ params }: ProductPageProps) {
         <nav className="flex items-center gap-2 text-xs text-[#8a7060]">
           <Link href="/" className="hover:text-[#4a3020] transition-colors">Home</Link>
           <span>/</span>
-          <Link href={`/category/${product.category.toLowerCase().replace(" ", "-")}`} className="hover:text-[#4a3020] transition-colors">
+          <Link href={`/category/${categorySlug}`} className="hover:text-[#4a3020] transition-colors">
             {product.category}
           </Link>
           <span>/</span>
@@ -89,7 +92,7 @@ export default function ProductPage({ params }: ProductPageProps) {
           {/* Right: Product Info */}
           <div className="flex flex-col">
             <Link
-              href={`/category/${product.category.toLowerCase().replace(" ", "-")}`}
+              href={`/category/${categorySlug}`}
               className="flex items-center gap-1.5 text-sm text-[#8d8840] hover:text-[#4a3020] transition-colors mb-4 group"
             >
               <ArrowLeft size={14} className="group-hover:-translate-x-0.5 transition-transform" />

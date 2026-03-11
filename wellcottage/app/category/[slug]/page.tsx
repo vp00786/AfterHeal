@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, use } from "react";
 import { ChevronDown, SlidersHorizontal } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
 import { COUNTERTOP_PRODUCTS, WALL_ORGANIZER_PRODUCTS, ALL_PRODUCTS } from "@/lib/products";
@@ -57,14 +57,15 @@ const SORT_OPTIONS = [
 ];
 
 interface CategoryPageProps {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }
 
 export default function CategoryPage({ params }: CategoryPageProps) {
+  const { slug } = use(params);
   const [sortBy, setSortBy] = useState("Best Selling");
   const [sortOpen, setSortOpen] = useState(false);
 
-  const config = CATEGORY_CONFIG[params.slug] || CATEGORY_CONFIG.countertops;
+  const config = CATEGORY_CONFIG[slug] || CATEGORY_CONFIG.countertops;
 
   const sortedProducts = [...config.products].sort((a, b) => {
     if (sortBy === "Price: Low to High") return a.price - b.price;
