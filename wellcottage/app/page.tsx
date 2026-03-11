@@ -277,50 +277,53 @@ export default function HomePage() {
       </section>
 
       {/* ─── START ORGANIZING SECTION ─── */}
-      <section className="py-16 sm:py-20 max-w-7xl mx-auto px-6">
-        <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between mb-10 gap-4">
-          <div>
-            <span className="text-xs uppercase tracking-[0.3em] text-[#8d8840] font-medium">
-              Countertops
-            </span>
-            <h2 className="font-serif text-4xl sm:text-5xl text-[#4a3020] mt-2">
-              Start Organizing
-            </h2>
+      <section className="py-16 sm:py-20 bg-[#f5f1ea]">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between mb-8 gap-4">
+            <div>
+              <span className="text-[10px] uppercase tracking-[0.3em] text-[#8d8840] font-semibold">
+                Countertops
+              </span>
+              <h2 className="font-serif text-3xl sm:text-4xl text-[#2c1e10] mt-1">
+                Start Organizing
+              </h2>
+            </div>
+            <Link
+              href="/category/countertops"
+              className="text-xs uppercase tracking-[0.12em] text-[#8d8840] hover:text-[#2c1e10] font-semibold flex items-center gap-1.5 transition-colors border-b border-[#8d8840] pb-0.5 hover:border-[#2c1e10]"
+            >
+              View All <ArrowRight size={12} />
+            </Link>
           </div>
-          <Link
-            href="/category/countertops"
-            className="text-sm text-[#8d8840] hover:text-[#4a3020] font-medium flex items-center gap-1 transition-colors underline-offset-2 hover:underline"
-          >
-            View All <ArrowRight size={14} />
-          </Link>
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-5">
-          {startOrganizing.map((product) => (
-            <ProductCard key={product.id} product={product} />
-          ))}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 items-start">
+            {startOrganizing.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
         </div>
       </section>
 
       {/* ─── RUSTIC MOUNTAIN COLLECTION ─── */}
-      <section className="bg-[#eae6da] py-16 sm:py-20">
+      <section className="bg-[#EDE8DC] py-16 sm:py-20">
         <div className="max-w-7xl mx-auto px-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between mb-10 gap-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between mb-8 gap-4">
             <div>
-              <span className="text-xs uppercase tracking-[0.3em] text-[#8d8840] font-medium">
+              <span className="text-[10px] uppercase tracking-[0.3em] text-[#8d8840] font-semibold">
                 Wall Organizers
               </span>
-              <h2 className="font-serif text-4xl sm:text-5xl text-[#4a3020] mt-2">
+              <h2 className="font-serif text-3xl sm:text-4xl text-[#2c1e10] mt-1">
                 Rustic Mountain Collection
               </h2>
             </div>
             <Link
               href="/category/wall-organizers"
-              className="text-sm text-[#8d8840] hover:text-[#4a3020] font-medium flex items-center gap-1 transition-colors underline-offset-2 hover:underline"
+              className="text-xs uppercase tracking-[0.12em] text-[#8d8840] hover:text-[#2c1e10] font-semibold flex items-center gap-1.5 transition-colors border-b border-[#8d8840] pb-0.5 hover:border-[#2c1e10]"
             >
-              View All <ArrowRight size={14} />
+              View All <ArrowRight size={12} />
             </Link>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-5">
+          {/* Horizontal product row — 5 across on desktop, 3 tablet, 2 mobile */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 items-start">
             {rusticMountain.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
