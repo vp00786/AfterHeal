@@ -7,6 +7,8 @@ router.route('/')
     .post(protect, authorize('doctor'), createTask)
     .get(protect, getTasks);
 
+router.post('/patient-reminder', protect, authorize('patient'), require('../controllers/taskController').createPatientReminder);
+
 router.put('/:id/complete', protect, authorize('patient'), completeTask);
 
 module.exports = router;

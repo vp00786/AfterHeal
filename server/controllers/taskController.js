@@ -35,6 +35,41 @@ const createTask = async (req, res) => {
     }
 };
 
+// @desc    Create a new reminder (Patient only)
+// @route   POST /api/tasks/patient-reminder
+// @access  Patient
+const createPatientReminder = async (req, res) => {
+    const { title, description, type, scheduledTime } = req.body;
+
+    try {
+        const newTaskCtx = {
+            _id: String(Date.now()),
+            title,
+            description,
+            type: type || 'medication',
+            priority: 'routine',
+            patient: req.user._id,
+            assignedBy: req.user._id, // Self assigned
+            scheduledTime,
+            isCompleted: false,
+            createdAt: new Date().toISOString()
+        };
+
+        const { data: task, error } = await supabase
+            .from('tasks')
+            .insert([newTaskCtx])
+            .select()
+            .single();
+
+        if (error) throw error;
+
+        res.status(201).json(task);
+    } catch (error) {
+        console.error('Create Reminder Error:', error.message);
+        res.status(400).json({ message: 'Invalid reminder data' });
+    }
+};
+
 // @desc    Get All Tasks (Role based)
 // @route   GET /api/tasks
 // @access  Private
@@ -170,4 +205,4 @@ const checkOverdueTasks = async () => {
     }
 };
 
-module.exports = { createTask, getTasks, completeTask, checkOverdueTasks };
+module.exports = { createTask, createPatientReminder, getTasks, completeTask, checkOverdueTasks };
