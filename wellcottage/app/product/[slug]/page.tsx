@@ -21,10 +21,10 @@ export default function ProductPage({ params }: ProductPageProps) {
 
   if (!product) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#f5f1ea]">
+      <div className="min-h-screen flex items-center justify-center bg-[#EBE6D8]">
         <div className="text-center">
-          <h2 className="font-serif text-3xl text-[#4a3020] mb-4">Product not found</h2>
-          <Link href="/category/countertops" className="text-[#8d8840] hover:underline">
+          <h2 className="font-serif text-3xl text-[#2c2a25] mb-4">Product not found</h2>
+          <Link href="/category/countertops" className="text-[#8f9682] hover:underline uppercase text-[11px] font-bold tracking-widest">
             ← Back to collection
           </Link>
         </div>
@@ -44,43 +44,43 @@ export default function ProductPage({ params }: ProductPageProps) {
   const categorySlug = product.category.toLowerCase().replace(" ", "-");
 
   return (
-    <div className="min-h-screen bg-[#f5f1ea]">
+    <div className="min-h-screen bg-[#EBE6D8]">
       {/* Breadcrumb */}
-      <div className="max-w-7xl mx-auto px-6 py-4">
-        <nav className="flex items-center gap-2 text-xs text-[#8a7060]">
-          <Link href="/" className="hover:text-[#4a3020] transition-colors">Home</Link>
-          <span>/</span>
-          <Link href={`/category/${categorySlug}`} className="hover:text-[#4a3020] transition-colors">
+      <div className="max-w-[1400px] mx-auto px-6 md:px-12 py-8">
+        <nav className="flex items-center gap-3 text-[10px] md:text-xs font-bold tracking-[0.1em] text-[#7a7872] uppercase">
+          <Link href="/" className="hover:text-[#2c2a25] transition-colors">Home</Link>
+          <span className="text-[#c4bdac]">/</span>
+          <Link href={`/category/${categorySlug}`} className="hover:text-[#2c2a25] transition-colors">
             {product.category}
           </Link>
-          <span>/</span>
-          <span className="text-[#4a3020] font-medium">{product.name}</span>
+          <span className="text-[#c4bdac]">/</span>
+          <span className="text-[#2c2a25]">{product.name}</span>
         </nav>
       </div>
 
       {/* Product Section */}
-      <div className="max-w-7xl mx-auto px-6 pb-16">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
+      <div className="max-w-[1400px] mx-auto px-6 md:px-12 pb-24">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
           {/* Left: Image Gallery */}
-          <div className="flex gap-4">
+          <div className="flex gap-4 md:gap-6">
             {/* Thumbnails (vertical) */}
-            <div className="hidden sm:flex flex-col gap-3 flex-shrink-0">
+            <div className="hidden sm:flex flex-col gap-4 flex-shrink-0">
               {product.images.map((img, i) => (
                 <button
                   key={i}
                   onClick={() => setSelectedImage(i)}
-                  className={`w-20 h-20 rounded-xl overflow-hidden border-2 transition-all ${
+                  className={`w-24 h-24 rounded-2xl overflow-hidden border-2 transition-all shadow-sm ${
                     selectedImage === i
-                      ? "border-[#8d8840] shadow-md"
-                      : "border-transparent hover:border-[#c8b89a]"
+                      ? "border-[#69715b] opacity-100 p-1"
+                      : "border-transparent opacity-70 hover:opacity-100"
                   }`}
                 >
-                  <img src={img} alt={`${product.name} view ${i + 1}`} className="w-full h-full object-cover" />
+                  <img src={img} alt={`${product.name} view ${i + 1}`} className="w-full h-full object-cover rounded-xl" />
                 </button>
               ))}
             </div>
             {/* Main Image */}
-            <div className="flex-1 rounded-3xl overflow-hidden bg-[#f0e8d0] aspect-square">
+            <div className="flex-1 rounded-[2rem] overflow-hidden bg-white aspect-square shadow-sm border border-[#c4bdac]/40">
               <img
                 src={product.images[selectedImage]}
                 alt={product.name}
@@ -90,141 +90,136 @@ export default function ProductPage({ params }: ProductPageProps) {
           </div>
 
           {/* Right: Product Info */}
-          <div className="flex flex-col">
+          <div className="flex flex-col pt-4">
             <Link
               href={`/category/${categorySlug}`}
-              className="flex items-center gap-1.5 text-sm text-[#8d8840] hover:text-[#4a3020] transition-colors mb-4 group"
+              className="flex items-center gap-1.5 text-[10px] font-bold tracking-[0.15em] text-[#8f9682] hover:text-[#2c2a25] transition-colors mb-6 group uppercase w-fit"
             >
-              <ArrowLeft size={14} className="group-hover:-translate-x-0.5 transition-transform" />
+              <ArrowLeft size={12} className="group-hover:-translate-x-1 transition-transform" strokeWidth={3} />
               Back to {product.category}
             </Link>
 
-            <span className="text-xs uppercase tracking-widest text-[#8d8840] font-medium mb-2">
+            <span className="text-[10px] uppercase font-bold tracking-[0.25em] text-[#8f9682] mb-3 inline-block">
               {product.subcategory}
             </span>
 
-            <h1 className="font-serif text-4xl sm:text-5xl text-[#4a3020] mb-2">
+            <h1 className="font-serif text-4xl sm:text-5xl md:text-[56px] text-[#2c2a25] mb-2 font-light uppercase tracking-[0.1em] leading-none">
               {product.name}
             </h1>
 
             {/* Rating */}
-            <div className="flex items-center gap-2 mb-4">
-              <div className="flex">
+            <div className="flex items-center gap-3 mb-6 mt-3">
+              <div className="flex gap-1">
                 {[1, 2, 3, 4, 5].map((s) => (
-                  <Star key={s} size={14} className="fill-[#8d8840] text-[#8d8840]" />
+                  <Star key={s} size={14} className="fill-[#dcbca8] text-[#dcbca8]" />
                 ))}
               </div>
-              <span className="text-xs text-[#8a7060]">(24 reviews)</span>
+              <span className="text-[11px] font-bold tracking-[0.1em] text-[#7a7872] uppercase">(24 reviews)</span>
+            </div>
+
+            {/* Product Type & Wood Stain */}
+            <div className="flex items-center gap-4 mb-6 border-y border-[#dcd7c8] py-4">
+               <div>
+                 <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#a09e98] mb-1">Product Type</p>
+                 <p className="text-xs font-bold uppercase tracking-[0.15em] text-[#555a4c]">{product.category}</p>
+               </div>
+               <div className="w-px h-8 bg-[#dcd7c8]" />
+               <div>
+                 <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#a09e98] mb-1">Wood Stain</p>
+                 <p className="text-xs font-bold uppercase tracking-[0.15em] text-[#555a4c] flex items-center gap-2">
+                   <span className="w-4 h-4 rounded-full border border-black/10 inline-block shadow-sm" style={{
+                      backgroundColor: product.woodFinish === "Simply White" ? "#e5dfc9" : product.woodFinish === "Classic Grey" ? "#8b8b8b" : product.woodFinish === "Natural Pine" ? "#ccae85" : product.woodFinish === "Walnut Brown" ? "#8b6340" : "#3c2a1e"
+                   }} />
+                   {product.woodFinish}
+                 </p>
+               </div>
             </div>
 
             {/* Price */}
-            <div className="flex items-center gap-3 mb-5">
-              <span className="text-3xl font-semibold text-[#4a3020]">
+            <div className="flex items-end gap-4 mb-8">
+              <span className="text-4xl font-bold text-[#2c2a25] font-sans tracking-tight">
                 ₹{product.price.toLocaleString()}
               </span>
               {product.originalPrice && (
-                <span className="text-lg text-[#a0896a] line-through">
+                <span className="text-lg font-bold text-[#a09e98] line-through mb-1">
                   ₹{product.originalPrice.toLocaleString()}
                 </span>
               )}
             </div>
 
-            <p className="text-[#8a7060] text-sm sm:text-base leading-relaxed mb-5">
+            <p className="text-[#555a4c] text-sm md:text-[15px] leading-relaxed mb-8 flex-1 font-sans">
               {product.description}
             </p>
 
-            {/* Wood Stain */}
-            <div className="mb-5">
-              <p className="text-sm font-medium text-[#4a3020] mb-2">
-                Wood stain:{" "}
-                <span className="font-normal text-[#8a7060]">{product.woodFinish}</span>
-              </p>
-              <div className="flex gap-2">
-                <span
-                  className="w-8 h-8 rounded-full border-2 border-[#8d8840] shadow-md"
-                  style={{
-                    backgroundColor:
-                      product.woodFinish === "Simply White"
-                        ? "#f5f0e4"
-                        : product.woodFinish === "Classic Grey"
-                        ? "#9ea399"
-                        : product.woodFinish === "Natural Pine"
-                        ? "#c4a46e"
-                        : product.woodFinish === "Walnut Brown"
-                        ? "#8b6340"
-                        : "#4a3020",
-                  }}
-                />
-              </div>
-            </div>
-
             {/* Quantity */}
-            <div className="flex items-center gap-4 mb-5">
-              <span className="text-sm font-medium text-[#4a3020]">Quantity</span>
-              <div className="flex items-center gap-3 border border-[#c8b89a] rounded-full px-4 py-2 bg-white">
+            <div className="flex items-center gap-6 mb-8">
+              <span className="text-[11px] font-bold uppercase tracking-[0.15em] text-[#2c2a25]">Quantity</span>
+              <div className="flex items-center gap-4 border border-[#c4bdac] rounded-full px-5 py-2.5 bg-white/50">
                 <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="w-6 h-6 flex items-center justify-center hover:text-[#8d8840] transition-colors"
+                  className="w-5 h-5 flex items-center justify-center hover:text-[#69715b] transition-colors"
                 >
-                  <Minus size={14} />
+                  <Minus size={14} strokeWidth={3} />
                 </button>
-                <span className="w-6 text-center text-sm font-medium text-[#4a3020]">
+                <span className="w-6 text-center text-[13px] font-bold text-[#2c2a25]">
                   {quantity}
                 </span>
                 <button
                   onClick={() => setQuantity(quantity + 1)}
-                  className="w-6 h-6 flex items-center justify-center hover:text-[#8d8840] transition-colors"
+                  className="w-5 h-5 flex items-center justify-center hover:text-[#69715b] transition-colors"
                 >
-                  <Plus size={14} />
+                  <Plus size={14} strokeWidth={3} />
                 </button>
               </div>
             </div>
 
             {/* Buttons */}
-            <div className="flex gap-3 mb-6">
-              <button
-                onClick={handleAddToCart}
-                className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-full font-medium text-sm transition-all ${
-                  addedToCart
-                    ? "bg-green-600 text-white"
-                    : "bg-[#4a5240] text-[#e8dfc8] hover:bg-[#3a4230]"
-                }`}
-              >
-                <ShoppingCart size={16} />
-                {addedToCart ? "Added to Cart!" : "Add to Cart"}
-              </button>
-              <button
-                onClick={() => toggleWishlist(product.id)}
-                className={`w-12 h-12 rounded-full border-2 flex items-center justify-center transition-all ${
-                  inWishlist
-                    ? "border-red-400 bg-red-50"
-                    : "border-[#c8b89a] hover:border-[#8d8840]"
-                }`}
-                aria-label="Add to wishlist"
-              >
-                <Heart
-                  size={18}
-                  className={inWishlist ? "fill-red-500 text-red-500" : "text-[#8a7060]"}
-                />
+            <div className="flex flex-col gap-3 mb-8 w-full max-w-[400px]">
+              <div className="flex gap-3 w-full">
+                <button
+                  onClick={handleAddToCart}
+                  className={`flex-1 flex items-center justify-center gap-2 py-4 rounded-full text-[11px] font-bold uppercase tracking-[0.15em] transition-colors border border-transparent shadow-sm ${
+                    addedToCart
+                      ? "bg-[#4a5041] text-white"
+                      : "bg-[#69715b] text-white hover:bg-[#575e4b]"
+                  }`}
+                >
+                  <ShoppingCart size={15} strokeWidth={2.5} />
+                  {addedToCart ? "ADDED TO CART!" : "ADD TO CART"}
+                </button>
+                <button
+                  onClick={() => toggleWishlist(product.id)}
+                  className={`w-14 h-14 rounded-full border-2 flex items-center justify-center transition-colors shadow-sm bg-white hover:bg-[#f4ebd8] ${
+                    inWishlist ? "border-[#dcbca8]" : "border-[#dcd7c8]"
+                  }`}
+                  aria-label="Add to wishlist"
+                >
+                  <Heart
+                    size={20}
+                    strokeWidth={inWishlist ? 2.5 : 1.5}
+                    className={inWishlist ? "fill-[#dcbca8] text-[#dcbca8]" : "text-[#7a7872]"}
+                  />
+                </button>
+              </div>
+              <button className="w-full py-4 rounded-full bg-white border border-[#2c2a25] text-[#2c2a25] text-[11px] font-bold uppercase tracking-[0.15em] hover:bg-[#2c2a25] hover:text-white transition-colors shadow-sm">
+                BUY NOW
               </button>
             </div>
 
-            <button className="w-full py-3.5 rounded-full bg-[#8d8840] text-white font-medium text-sm hover:bg-[#7a7535] transition-colors mb-8">
-              Buy Now
-            </button>
-
-            {/* Product Details */}
-            <div className="border-t border-[#e0d5c0] pt-6 space-y-3">
-              <h3 className="font-serif text-lg text-[#4a3020] mb-4">Product Details</h3>
+            {/* Product Details accordion approx */}
+            <div className="border-t border-[#dcd7c8] pt-8 space-y-4">
+              <h3 className="font-sans text-[11px] font-bold uppercase tracking-[0.2em] text-[#2c2a25] mb-6">Product Details</h3>
               {[
                 { icon: Package, label: "Material", value: product.material },
                 { icon: Weight, label: "Weight", value: product.weight },
                 { icon: Package, label: "Dimensions", value: product.dimensions },
               ].map(({ icon: Icon, label, value }) => (
-                <div key={label} className="flex items-center gap-3 text-sm">
-                  <Icon size={15} className="text-[#8d8840] flex-shrink-0" />
-                  <span className="text-[#8a7060] w-24">{label}</span>
-                  <span className="text-[#4a3020] font-medium">{value}</span>
+                <div key={label} className="flex items-center gap-4 text-sm">
+                  <div className="w-8 h-8 rounded-full bg-white border border-[#dcd7c8] flex items-center justify-center text-[#8f9682]">
+                     <Icon size={14} strokeWidth={2.5} />
+                  </div>
+                  <span className="text-[11px] font-bold uppercase tracking-[0.1em] text-[#a09e98] w-28">{label}</span>
+                  <span className="text-[13px] font-bold text-[#555a4c]">{value}</span>
                 </div>
               ))}
             </div>
@@ -234,12 +229,12 @@ export default function ProductPage({ params }: ProductPageProps) {
 
       {/* You May Also Like */}
       {related.length > 0 && (
-        <section className="bg-[#f0e8d4] py-16 sm:py-20">
-          <div className="max-w-7xl mx-auto px-6">
-            <h2 className="font-serif text-3xl sm:text-4xl text-[#4a3020] mb-10 text-center">
+        <section className="bg-[#5A624A] py-20 border-t border-[#8f9682]/30">
+          <div className="max-w-[1400px] mx-auto px-6 md:px-12">
+            <h2 className="font-serif text-3xl sm:text-4xl md:text-[44px] text-[#EBE6D8] font-light uppercase tracking-[0.15em] mb-12 text-center drop-shadow-sm">
               You May Also Like
             </h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
               {related.map((p) => (
                 <ProductCard key={p.id} product={p} />
               ))}

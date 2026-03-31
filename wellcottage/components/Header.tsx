@@ -8,7 +8,6 @@ import { NAV_ITEMS } from "@/lib/products";
 import CartDrawer from "./CartDrawer";
 
 export default function Header() {
-  const [searchOpen, setSearchOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -17,12 +16,12 @@ export default function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 bg-[#f5f1ea] border-b border-[#e0d5c0] shadow-sm">
+      <header className="sticky top-0 z-50 bg-[#EBE6D8] shadow-sm">
         {/* Top bar */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
+        <div className="max-w-[1400px] mx-auto px-4 md:px-8 pt-6 pb-4 flex items-center justify-between gap-6">
           {/* Mobile menu toggle */}
           <button
-            className="lg:hidden text-[#4a3020] hover:text-[#8d8840] transition-colors"
+            className="lg:hidden text-[#4a4a4a] hover:text-[#2c2a25] transition-colors"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Toggle menu"
           >
@@ -32,108 +31,83 @@ export default function Header() {
           {/* Logo */}
           <Link
             href="/"
-            className="flex-shrink-0 text-center lg:text-left"
+            className="flex-shrink-0 flex flex-col justify-center w-[200px]"
           >
-            <span className="font-serif text-2xl sm:text-3xl text-[#4a3020] tracking-tight leading-none">
-              The Well Cottage
-            </span>
-            <span className="block text-[10px] tracking-[0.3em] text-[#8d8840] uppercase mt-0.5">
-              Handcrafted Wood
+            <div className="flex items-center gap-2">
+               {/* Very simple leaf logo approximation */}
+               <div className="w-8 h-8 rounded-full border border-[#8a917f] flex items-center justify-center -rotate-12">
+                  <span className="text-[#8a917f] text-xs font-serif">W</span>
+               </div>
+               <span className="font-serif text-[28px] text-[#555a4c] tracking-tight leading-tight uppercase font-light">
+                 The Well<br/>Cottage
+               </span>
+            </div>
+            <span className="block text-[7px] tracking-[0.4em] text-[#5a604f] uppercase whitespace-nowrap mt-1 font-bold">
+              Community Culture Care
             </span>
           </Link>
 
           {/* Search bar – desktop */}
-          <div className="hidden lg:flex flex-1 max-w-md mx-6">
-            <div className="relative w-full">
+          <div className="hidden lg:flex flex-1 max-w-2xl mx-8">
+            <div className="relative w-full flex items-center">
               <input
                 type="text"
-                placeholder="Search products..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 rounded-full border border-[#c8b89a] bg-white/70 text-sm text-[#4a3020] placeholder-[#a0896a] focus:outline-none focus:ring-2 focus:ring-[#8d8840]/40 focus:border-[#8d8840] transition-all"
+                className="w-full pl-6 pr-12 py-2 rounded-full border border-[#8f9682]/40 bg-[#dcd7c8]/30 font-sans text-sm text-[#2c2a25] outline-none hover:border-[#8f9682] focus:border-[#8f9682] focus:bg-white/50 transition-all placeholder:text-[#a09e98]"
               />
-              <Search
-                size={16}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-[#a0896a]"
-              />
+              <button className="absolute right-4 text-[#8f9682] hover:text-[#555a4c] transition-colors">
+                <Search size={16} strokeWidth={2.5} />
+              </button>
             </div>
           </div>
 
           {/* Right icons */}
-          <div className="flex items-center gap-1 sm:gap-3">
-            {/* Search – mobile */}
-            <button
-              className="lg:hidden p-2 text-[#4a3020] hover:text-[#8d8840] transition-colors"
-              onClick={() => setSearchOpen(!searchOpen)}
-              aria-label="Search"
-            >
-              <Search size={20} />
-            </button>
-
+          <div className="flex items-center gap-4 text-[#555a4c]">
             {/* Wishlist */}
             <Link
               href="/wishlist"
-              className="relative p-2 text-[#4a3020] hover:text-[#8d8840] transition-colors"
+              className="relative p-1 hover:text-[#1a1c17] transition-colors"
               aria-label="Wishlist"
             >
-              <Heart size={20} />
+              <Heart size={22} strokeWidth={1.5} />
               {wishlist.length > 0 && (
-                <span className="cart-badge">{wishlist.length}</span>
+                <span className="cart-badge bg-[#8f9682]">{wishlist.length}</span>
               )}
             </Link>
 
             {/* Cart */}
-            <button
-              className="relative p-2 text-[#4a3020] hover:text-[#8d8840] transition-colors"
-              onClick={() => setCartOpen(true)}
-              aria-label="Cart"
-            >
-              <ShoppingCart size={20} />
-              {cartCount > 0 && (
-                <span className="cart-badge">{cartCount}</span>
-              )}
-            </button>
+           <button
+             className="relative p-1 hover:text-[#1a1c17] transition-colors"
+             onClick={() => setCartOpen(true)}
+             aria-label="Cart"
+           >
+             <ShoppingCart size={22} strokeWidth={1.5} />
+             {cartCount > 0 && (
+               <span className="cart-badge bg-[#8f9682]">{cartCount}</span>
+             )}
+           </button>
 
             {/* Account */}
             <Link
               href="/account"
-              className="p-2 text-[#4a3020] hover:text-[#8d8840] transition-colors"
+              className="p-1 hover:text-[#1a1c17] transition-colors"
               aria-label="Account"
             >
-              <User size={20} />
+              <User size={22} strokeWidth={1.5} />
             </Link>
           </div>
         </div>
 
-        {/* Mobile search */}
-        {searchOpen && (
-          <div className="lg:hidden px-4 pb-3">
-            <div className="relative w-full">
-              <input
-                type="text"
-                placeholder="Search products..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 rounded-full border border-[#c8b89a] bg-white/70 text-sm text-[#4a3020] placeholder-[#a0896a] focus:outline-none focus:ring-2 focus:ring-[#8d8840]/40 transition-all"
-                autoFocus
-              />
-              <Search
-                size={16}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-[#a0896a]"
-              />
-            </div>
-          </div>
-        )}
-
-        {/* Navigation */}
-        <nav className="hidden lg:block border-t border-[#e0d5c0] bg-[#4a5240]">
-          <div className="max-w-7xl mx-auto px-6">
-            <ul className="flex items-center justify-center gap-1">
+        {/* Navigation - Inline underneath */}
+        <nav className="hidden lg:block w-full pb-6 pt-2">
+          <div className="max-w-[1000px] mx-auto">
+            <ul className="flex items-center justify-between w-full">
               {NAV_ITEMS.map((item) => (
                 <li key={item.name}>
                   <Link
                     href={item.href}
-                    className="block px-5 py-3 text-sm font-medium text-[#e8dfc8] hover:text-white hover:bg-white/10 tracking-wider uppercase transition-all"
+                    className="block text-[13px] font-bold text-[#555a4c] hover:text-[#2c2a25] tracking-[0.2em] uppercase transition-colors"
                   >
                     {item.name}
                   </Link>
@@ -145,13 +119,28 @@ export default function Header() {
 
         {/* Mobile nav */}
         {mobileMenuOpen && (
-          <div className="lg:hidden bg-[#4a5240] border-t border-[#5a6250]">
+          <div className="lg:hidden bg-[#EBE6D8] border-t border-[#dcd7c8]">
+            {/* Mobile search */}
+            <div className="p-4 border-b border-[#dcd7c8]">
+              <div className="relative w-full flex items-center">
+                <input
+                  type="text"
+                  placeholder="Search products..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-4 pr-10 py-2 rounded border border-[#c4bdac] bg-white/50 text-sm text-[#4a4a4a] outline-none focus:border-[#69715b]"
+                />
+                <button className="absolute right-3 text-[#69715b]">
+                  <Search size={16} strokeWidth={2.5}/>
+                </button>
+              </div>
+            </div>
             <ul className="flex flex-col">
               {NAV_ITEMS.map((item) => (
                 <li key={item.name}>
                   <Link
                     href={item.href}
-                    className="block px-6 py-4 text-sm font-medium text-[#e8dfc8] hover:bg-white/10 tracking-wider uppercase border-b border-[#5a6250]/50"
+                    className="block px-6 py-4 text-[11px] font-bold text-[#555a4c] hover:bg-[#dcd7c8] tracking-widest uppercase border-b border-[#dcd7c8]/50"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     {item.name}

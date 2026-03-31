@@ -21,6 +21,11 @@ import PatientChecklist from './pages/patient/PatientChecklist';
 import DoctorChecklist from './pages/patient/DoctorChecklist';
 import MedicalRecords from './pages/patient/MedicalRecords';
 
+import CaregiverOverview from './pages/caregiver/CaregiverOverview';
+import CaregiverMedications from './pages/caregiver/CaregiverMedications';
+import CaregiverNotes from './pages/caregiver/CaregiverNotes';
+import CaregiverAlerts from './pages/caregiver/CaregiverAlerts';
+
 const DashboardRedirect = () => {
   const { user } = useAuth();
 
@@ -60,6 +65,12 @@ function App() {
             <Route path="/patient/checklist" element={<PatientChecklist />} />
             <Route path="/patient/doctor/:doctorId" element={<DoctorChecklist />} />
             <Route path="/patient/records" element={<MedicalRecords />} />
+
+            {/* Caregiver Routes */}
+            <Route path="/caregiver/overview" element={<CaregiverOverview />} />
+            <Route path="/caregiver/medications" element={<CaregiverMedications />} />
+            <Route path="/caregiver/notes" element={<CaregiverNotes />} />
+            <Route path="/caregiver/alerts" element={<CaregiverAlerts />} />
           </Route>
         </Routes>
       </AuthProvider>

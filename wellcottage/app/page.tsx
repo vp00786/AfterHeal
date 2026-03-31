@@ -1,301 +1,195 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { ArrowRight, Leaf, Sprout, Award, Heart } from "lucide-react";
+import { Trees, Leaf, Anchor, Scale } from "lucide-react";
 import ProductCard from "@/components/ProductCard";
-import {
-  COUNTERTOP_PRODUCTS,
-  WALL_ORGANIZER_PRODUCTS,
-  WOOD_FINISHES,
-} from "@/lib/products";
-
-const VALUES = [
-  {
-    icon: Sprout,
-    title: "Rural Development",
-    description: "Supporting artisan communities in rural India",
-  },
-  {
-    icon: Leaf,
-    title: "Sustainable",
-    description: "Eco-friendly materials and processes",
-  },
-  {
-    icon: Award,
-    title: "Heirloom Designs",
-    description: "Made to last generations",
-  },
-  {
-    icon: Heart,
-    title: "Ethical Purchasing",
-    description: "Fair wages, transparent supply chain",
-  },
-];
-
-const STORY_CARDS = [
-  {
-    title: "Our Story",
-    href: "/about",
-    image:
-      "https://images.unsplash.com/photo-1415369629372-26f2fe60c467?w=600&q=80",
-    description: "How a love for craft became a movement",
-  },
-  {
-    title: "Materials in Use",
-    href: "/materials",
-    image:
-      "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80",
-    description: "Responsibly sourced Pine Wood",
-  },
-  {
-    title: "Hands Behind Our Products",
-    href: "/artisans",
-    image:
-      "https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=600&q=80",
-    description: "Meet the artisans who craft each piece",
-  },
-];
+import { COUNTERTOP_PRODUCTS, WALL_ORGANIZER_PRODUCTS } from "@/lib/products";
 
 export default function HomePage() {
-  const [selectedFinish, setSelectedFinish] = useState(WOOD_FINISHES[2]);
-
-  const startOrganizing = COUNTERTOP_PRODUCTS.slice(0, 5);
-  const rusticMountain = WALL_ORGANIZER_PRODUCTS.slice(0, 5);
+  const startOrganizing = COUNTERTOP_PRODUCTS.slice(0, 4);
+  const rusticMountain = WALL_ORGANIZER_PRODUCTS.slice(0, 4);
 
   return (
-    <div className="min-h-screen">
-      {/* ─── HERO SECTION ─── */}
-      <section className="relative h-[85vh] min-h-[560px] overflow-hidden">
-        <img
-          src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=1400&q=85"
-          alt="The Well Cottage - Handcrafted Wood"
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#2c1e10]/80 via-[#2c1e10]/40 to-transparent" />
-        <div className="relative z-10 flex flex-col justify-center h-full max-w-7xl mx-auto px-6 sm:px-10">
-          <div className="max-w-lg animate-fade-in">
-            <span className="inline-block text-xs uppercase tracking-[0.3em] text-[#d4b483] mb-4 bg-white/10 backdrop-blur-sm px-3 py-1.5 rounded-full border border-[#d4b483]/30">
-              Handcrafted in India
-            </span>
-            <h1 className="font-serif text-5xl sm:text-6xl lg:text-7xl text-white leading-[1.05] mb-6">
-              Where
-              <span className="block italic text-[#d4b483]">Wood</span>
-              Meets Home.
-            </h1>
-            <p className="text-[#e8dfc8] text-base sm:text-lg mb-8 leading-relaxed max-w-sm">
-              Beautifully crafted wooden essentials that bring warmth, function,
-              and soul to every corner of your home.
-            </p>
-            <Link
-              href="/category/countertops"
-              className="inline-flex items-center gap-2 bg-[#8d8840] hover:bg-[#7a7535] text-white px-8 py-4 rounded-full font-medium transition-all hover:gap-3 text-sm sm:text-base shadow-lg hover:shadow-xl"
-            >
-              Shop Now
-              <ArrowRight size={18} />
-            </Link>
-          </div>
-        </div>
-        {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 text-white/50">
-          <span className="text-[10px] tracking-widest uppercase">Scroll</span>
-          <div className="w-px h-8 bg-white/30 animate-pulse" />
-        </div>
-      </section>
+    <div className="w-full flex flex-col">
+      {/* ─── HERO & ICON ROW SECTION (Beige Background) ─── */}
+      <section className="bg-[#EBE6D8] pt-6 pb-16 w-full">
+        <div className="max-w-[1400px] mx-auto px-4 md:px-8">
+          {/* Hero Banner (4 slices) */}
+          <div className="relative w-full h-[450px] md:h-[550px] rounded-[2rem] overflow-hidden flex shadow-sm border border-[#dcd7c8]/50">
+            {/* Slice 1 */}
+            <div className="flex-1 relative border-r border-[#dcd7c8]/30">
+              <img src="https://images.unsplash.com/photo-1584568694244-14fbdf83bd30?w=600&q=80" alt="Indian Artistry" className="absolute inset-0 w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-black/20" />
+              <p className="absolute inset-x-0 top-1/2 -translate-y-1/2 text-center text-white/90 font-serif text-sm md:text-xl tracking-widest px-2 drop-shadow-md">Celebrate Indian Artistry</p>
+            </div>
+            {/* Slice 2 */}
+            <div className="flex-1 relative border-r border-[#dcd7c8]/30">
+              <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80" alt="Earthy Tones" className="absolute inset-0 w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-black/30" />
+              <p className="absolute inset-x-0 bottom-24 text-center text-white/90 font-serif text-sm md:text-xl tracking-widest px-2 drop-shadow-md">Earthy Tones</p>
+            </div>
+            {/* Slice 3 */}
+            <div className="flex-1 relative border-r border-[#dcd7c8]/30">
+              <img src="https://images.unsplash.com/photo-1616046229478-9901c5536a45?w=600&q=80" alt="Timeless Pieces" className="absolute inset-0 w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-black/10" />
+              <p className="absolute inset-x-0 top-16 text-center text-[#2c2a25] font-serif text-sm md:text-xl tracking-widest px-2 drop-shadow-sm">Timeless Pieces</p>
+            </div>
+            {/* Slice 4 */}
+            <div className="flex-1 relative">
+              <img src="https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=600&q=80" alt="Eco-Friendly Materials" className="absolute inset-0 w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-black/20" />
+              <p className="absolute inset-x-0 top-1/2 -translate-y-1/2 text-center text-white/90 font-serif text-sm md:text-xl tracking-widest px-2 drop-shadow-md">Eco-Friendly Materials</p>
+            </div>
 
-      {/* ─── VALUE PROPOSITIONS ─── */}
-      <section className="bg-[#4a5240] py-12 sm:py-14">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
-            {VALUES.map((v) => {
-              const Icon = v.icon;
-              return (
-                <div
-                  key={v.title}
-                  className="flex flex-col items-center text-center gap-3 group"
-                >
-                  <div className="w-14 h-14 rounded-full bg-white/10 flex items-center justify-center group-hover:bg-[#8d8840]/80 transition-colors">
-                    <Icon size={24} className="text-[#d4b483]" />
-                  </div>
-                  <div>
-                    <h3 className="font-serif text-base sm:text-lg text-[#f0e8d0] mb-1">
-                      {v.title}
-                    </h3>
-                    <p className="text-xs sm:text-sm text-[#a0987a] leading-relaxed">
-                      {v.description}
-                    </p>
-                  </div>
-                </div>
-              );
-            })}
+            {/* SHOP NOW Button */}
+            <button className="absolute bottom-10 left-1/2 -translate-x-1/2 px-8 py-3 rounded-full border border-white/80 text-white bg-white/10 backdrop-blur-sm text-[11px] md:text-[13px] tracking-[0.2em] hover:bg-white/20 transition-colors uppercase z-10 font-medium">
+              SHOP NOW
+            </button>
+          </div>
+
+          {/* Icon Row */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-4 mt-20 max-w-5xl mx-auto px-4">
+            <div className="flex flex-col items-center text-center gap-4">
+              <Trees className="w-10 h-10 md:w-12 md:h-12 text-[#69715b]" strokeWidth={1.5} />
+              <span className="text-[#3c3a32] text-[10px] md:text-[11px] font-bold tracking-[0.16em] uppercase">Rural Development</span>
+            </div>
+            <div className="flex flex-col items-center text-center gap-4">
+              <Leaf className="w-10 h-10 md:w-12 md:h-12 text-[#69715b]" strokeWidth={1.5} />
+              <span className="text-[#3c3a32] text-[10px] md:text-[11px] font-bold tracking-[0.16em] uppercase">Sustainable</span>
+            </div>
+            <div className="flex flex-col items-center text-center gap-4">
+              <Anchor className="w-10 h-10 md:w-12 md:h-12 text-[#69715b]" strokeWidth={1.5} />
+              <span className="text-[#3c3a32] text-[10px] md:text-[11px] font-bold tracking-[0.16em] uppercase">Heirloom Designs</span>
+            </div>
+            <div className="flex flex-col items-center text-center gap-4">
+              <Scale className="w-10 h-10 md:w-12 md:h-12 text-[#69715b]" strokeWidth={1.5} />
+              <span className="text-[#3c3a32] text-[10px] md:text-[11px] font-bold tracking-[0.16em] uppercase">Ethical Purchasing</span>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ─── OUR COLLECTION ─── */}
-      <section className="py-16 sm:py-20 max-w-7xl mx-auto px-6">
-        <div className="text-center mb-12">
-          <span className="text-xs uppercase tracking-[0.3em] text-[#8d8840] font-medium">
-            Curated For You
-          </span>
-          <h2 className="font-serif text-4xl sm:text-5xl text-[#4a3020] mt-2 mb-4">
-            Our Collection
+      {/* ─── OUR COLLECTION (Olive Background) ─── */}
+      <section className="bg-[#69715b] pt-16 pb-24 w-full relative overflow-hidden">
+        <div className="max-w-[1400px] mx-auto px-4 md:px-8 relative h-[500px] md:h-[650px]">
+          {/* Circular images scattered */}
+          {/* Decor */}
+          <div className="absolute top-[10%] left-[5%] md:left-[10%] group">
+            <div className="w-32 md:w-48 aspect-square rounded-full border-[6px] border-[#EBE6D8] overflow-hidden drop-shadow-xl relative bg-white flex items-center justify-center">
+              <img src="https://images.unsplash.com/photo-1616046229478-9901c5536a45?w=400&q=80" className="w-[80%] h-[80%] object-cover rounded-md" alt="Decor" />
+            </div>
+            <span className="absolute -top-4 right-0 text-white font-serif tracking-[0.1em] text-sm rotate-12 drop-shadow-sm uppercase">Decor</span>
+          </div>
+
+          {/* Wall Organizers */}
+          <div className="absolute top-[20%] left-[35%] md:left-[30%] group">
+            <div className="w-40 md:w-56 aspect-square rounded-full border-[6px] border-[#EBE6D8] overflow-hidden drop-shadow-xl relative bg-white flex items-center justify-center">
+              <img src="https://images.unsplash.com/photo-1584568694244-14fbdf83bd30?w=400&q=80" className="w-[90%] h-[90%] object-cover rounded-md" alt="Wall Organizers" />
+            </div>
+            <span className="absolute -top-6 right-4 text-white font-serif tracking-[0.1em] text-sm rotate-[15deg] drop-shadow-sm uppercase">Wall Organizers</span>
+          </div>
+
+          {/* Kitchen */}
+          <div className="absolute top-[15%] right-[25%] md:right-[30%] group">
+            <div className="w-36 md:w-52 aspect-square rounded-full border-[6px] border-[#EBE6D8] overflow-hidden drop-shadow-xl relative bg-white flex items-center justify-center">
+              <img src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&q=80" className="w-[85%] h-[85%] object-cover rounded-md" alt="Kitchen" />
+            </div>
+            <span className="absolute -top-4 right-4 text-white font-serif tracking-[0.1em] text-sm rotate-[20deg] drop-shadow-sm uppercase">Kitchen</span>
+          </div>
+
+          {/* Countertops */}
+          <div className="absolute top-[30%] right-[2%] md:right-[5%] group">
+            <div className="w-40 md:w-56 aspect-square rounded-full border-[6px] border-[#EBE6D8] overflow-hidden drop-shadow-xl relative bg-white flex items-center justify-center">
+              <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80" className="w-[85%] h-[85%] object-cover rounded-md" alt="Countertops" />
+            </div>
+            <span className="absolute top-2 -right-4 text-white font-serif tracking-[0.1em] text-sm rotate-[35deg] drop-shadow-sm uppercase">Countertops</span>
+          </div>
+
+          {/* Furniture */}
+          <div className="absolute bottom-[10%] left-[20%] md:left-[22%] group">
+            <div className="w-36 md:w-52 aspect-square rounded-full border-[6px] border-[#EBE6D8] overflow-hidden drop-shadow-xl relative bg-white flex items-center justify-center">
+              <img src="https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=400&q=80" className="w-[85%] h-[85%] object-cover rounded-sm" alt="Furniture" />
+            </div>
+            <span className="absolute -top-2 right-4 text-white font-serif tracking-[0.1em] text-sm rotate-12 drop-shadow-sm uppercase">Furniture</span>
+          </div>
+
+          {/* Lighting */}
+          <div className="absolute bottom-[5%] right-[20%] md:right-[25%] group z-10">
+             <div className="w-32 md:w-48 aspect-square rounded-full border-[6px] border-[#EBE6D8] overflow-hidden drop-shadow-xl relative bg-white flex items-center justify-center">
+               <img src="https://images.unsplash.com/photo-1507641214041-e940428fa671?w=400&q=80" className="w-[75%] h-[75%] object-cover rounded-sm" alt="Lighting" />
+             </div>
+             <span className="absolute top-0 -right-6 text-white font-serif tracking-[0.1em] text-sm rotate-[30deg] drop-shadow-sm uppercase">Lighting</span>
+          </div>
+
+          {/* Title Bottom Center */}
+          <h2 className="absolute bottom-4 left-1/2 -translate-x-1/2 text-[#ebd6b2] font-sans font-light text-3xl md:text-5xl tracking-[0.25em] uppercase whitespace-nowrap z-0 opacity-90 drop-shadow-sm">
+            OUR COLLECTION
           </h2>
-          <p className="text-[#8a7060] max-w-lg mx-auto text-sm sm:text-base leading-relaxed">
-            Every piece is handcrafted with care — from sustainable pine wood, finished
-            with non-toxic stains, and made to last a lifetime.
-          </p>
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Big card */}
-          <div className="lg:col-span-2 relative rounded-3xl overflow-hidden group h-80 sm:h-96 cursor-pointer">
-            <img
-              src="https://images.unsplash.com/photo-1584568694244-14fbdf83bd30?w=900&q=80"
-              alt="Countertop Collection"
-              className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#2c1e10]/80 via-transparent to-transparent" />
-            <div className="absolute bottom-6 left-6 right-6">
-              <p className="text-[#d4b483] text-xs uppercase tracking-widest mb-1">New Arrivals</p>
-              <h3 className="font-serif text-2xl sm:text-3xl text-white mb-3">
-                Countertop Organizers
-              </h3>
-              <Link
-                href="/category/countertops"
-                className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm hover:bg-[#8d8840] text-white text-sm px-5 py-2.5 rounded-full transition-all border border-white/30"
-              >
-                Explore <ArrowRight size={14} />
-              </Link>
-            </div>
+      </section>
+
+      {/* ─── ONE WOOD MANY MOODS (Beige Background) ─── */}
+      <section className="bg-[#EBE6D8] py-20 w-full border-t border-[#dcd7c8]">
+        <div className="max-w-[1400px] mx-auto px-4 md:px-8">
+          {/* Top Banner with 5 slices */}
+          <div className="relative w-full h-[200px] md:h-[260px] rounded-[1.5rem] overflow-hidden flex shadow-[0_4px_16px_rgba(0,0,0,0.05)] mb-16 border border-[#c4bdac]/40">
+             <div className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-black/5 mix-blend-multiply pointer-events-none" />
+             
+             {/* 5 wood texture slices */}
+             <div className="flex-1 bg-[#d3bc9f]" />
+             <div className="flex-1 bg-[#b89e82]" />
+             <div className="flex-1 bg-[#a98e6c]" />
+             <div className="flex-1 bg-[#856142] border-x border-black/10" />
+             <div className="flex-1 bg-[#3c2a1e]" />
+
+             <div className="absolute inset-x-0 inset-y-0 flex flex-col items-center justify-center z-20 text-center drop-shadow-md pb-4">
+                <h2 className="text-white/95 font-sans font-light text-2xl md:text-5xl tracking-[0.35em] uppercase mb-4 drop-shadow-sm">One Wood, Many Moods.</h2>
+                <p className="text-[#3c2a1e] font-bold text-[10px] md:text-xs tracking-[0.35em] uppercase drop-shadow-sm mix-blend-overlay opacity-80">Shop by Stain</p>
+             </div>
           </div>
-          {/* Small card */}
-          <div className="relative rounded-3xl overflow-hidden group h-80 sm:h-96 cursor-pointer">
-            <img
-              src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80"
-              alt="Wall Organizers"
-              className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#2c1e10]/80 via-transparent to-transparent" />
-            <div className="absolute bottom-6 left-6 right-6">
-              <p className="text-[#d4b483] text-xs uppercase tracking-widest mb-1">Featured</p>
-              <h3 className="font-serif text-2xl text-white mb-3">
-                Wall Organizers
-              </h3>
-              <Link
-                href="/category/wall-organizers"
-                className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm hover:bg-[#8d8840] text-white text-sm px-5 py-2.5 rounded-full transition-all border border-white/30"
-              >
-                Explore <ArrowRight size={14} />
-              </Link>
-            </div>
+
+          {/* 5 Circular wood objects */}
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-8 md:gap-4 max-w-6xl mx-auto px-4 justify-items-center">
+             {[
+               {name: "Simply White", img1: "bg-[#e5dfc9]", img2: "https://images.unsplash.com/photo-1544457070-4cd773b4d71e?w=200&q=80"},
+               {name: "Classic Grey", img1: "bg-[#8b8b8b]", img2: "https://images.unsplash.com/photo-1544457070-4cd773b4d71e?w=200&q=80"},
+               {name: "Natural Pine", img1: "bg-[#ccae85]", img2: "https://images.unsplash.com/photo-1584568694244-14fbdf83bd30?w=200&q=80"},
+               {name: "Walnut Brown", img1: "bg-[#8b6340]", img2: "https://images.unsplash.com/photo-1584568694244-14fbdf83bd30?w=200&q=80"},
+               {name: "Dark Walnut", img1: "bg-[#3c2a1e]", img2: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=200&q=80"},
+             ].map((item, idx) => (
+                <div key={item.name} className="flex flex-col items-center gap-4 text-center">
+                   <div className="w-28 h-28 md:w-40 md:h-40 rounded-full border border-[#2c2a25]/20 overflow-hidden flex bg-white shadow-sm">
+                      <div className="flex-1 h-full bg-cover bg-center border-r border-[#2c2a25]/10" style={{backgroundImage: `url(${item.img2})`, filter: 'brightness(1.1)'}} />
+                      <div className={`flex-1 h-full ${item.img1} flex items-center justify-center overflow-hidden`}>
+                        <div className="w-[120%] h-full opacity-40 mix-blend-multiply" style={{backgroundImage: `url("https://images.unsplash.com/photo-1544457070-4cd773b4d71e?w=200&q=80")`, backgroundSize: 'cover'}} />
+                      </div>
+                   </div>
+                   <span className="text-[#3c3a32] text-[10px] md:text-xs font-bold tracking-[0.1em] uppercase">{item.name}</span>
+                </div>
+             ))}
           </div>
         </div>
       </section>
 
-      {/* ─── ONE WOOD MANY MOODS ─── */}
-      <section className="bg-[#f0e8d4] py-16 sm:py-20">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center mb-10">
-            <span className="text-xs uppercase tracking-[0.3em] text-[#8d8840] font-medium">
-              Customisable
-            </span>
-            <h2 className="font-serif text-4xl sm:text-5xl text-[#4a3020] mt-2 mb-3">
-              One Wood, Many Moods
-            </h2>
-            <p className="text-[#8a7060] text-sm sm:text-base">
-              Choose your perfect finish for every room
-            </p>
+      {/* ─── START ORGANIZING SECTION (Olive Background) ─── */}
+      <section className="bg-[#69715b] pt-16 pb-20 w-full border-t border-[#858e74]">
+        <div className="max-w-[1400px] mx-auto px-4 md:px-8">
+          {/* Big Beige Banner inside Olive Section */}
+          <div className="w-full bg-[#EBE6D8] rounded-[2rem] h-[220px] md:h-[280px] flex items-center justify-between px-8 md:px-24 shadow-md mb-12 overflow-hidden border border-[#dcd7c8]/60 relative">
+             <div className="flex flex-col items-start gap-1 md:gap-2 z-10 w-full max-w-[400px] md:max-w-none">
+               <h2 className="text-[#2c2a25] font-serif text-3xl md:text-[44px] tracking-[0.15em] mb-1 font-light uppercase">Start Organizing</h2>
+               <p className="text-[#69715b] font-sans text-[9px] md:text-[11px] font-bold tracking-[0.2em] uppercase mb-4 md:mb-6">Wait Organisers</p>
+               <button className="px-5 md:px-8 py-2 md:py-2.5 border-2 border-[#d5d0c0] rounded-full text-[9px] md:text-[11px] uppercase font-bold text-[#8a8578] tracking-[0.15em] hover:border-[#69715b] hover:text-[#69715b] transition-colors bg-white/40">SHOP NOW</button>
+             </div>
+             
+             {/* Right Image element inside the banner */}
+             <div className="absolute right-0 bottom-0 top-0 w-[45%] h-full hidden md:flex items-end justify-end pr-12 pb-4">
+                <img src="https://images.unsplash.com/photo-1507641214041-e940428fa671?w=600&q=80" alt="Organizers" className="h-[90%] w-auto object-contain rounded-xl drop-shadow-xl" />
+             </div>
           </div>
-          <div className="flex flex-col lg:flex-row gap-10 items-center">
-            {/* Finish Selector */}
-            <div className="flex-shrink-0 w-full lg:w-64">
-              <div className="space-y-3">
-                {WOOD_FINISHES.map((finish) => (
-                  <button
-                    key={finish.id}
-                    onClick={() => setSelectedFinish(finish)}
-                    className={`w-full flex items-center gap-4 p-4 rounded-xl border-2 transition-all text-left ${
-                      selectedFinish.id === finish.id
-                        ? "border-[#8d8840] bg-white shadow-md"
-                        : "border-transparent bg-white/50 hover:bg-white hover:border-[#c8b89a]"
-                    }`}
-                  >
-                    <span
-                      className="w-8 h-8 rounded-full flex-shrink-0 border-2 border-white shadow-sm"
-                      style={{ backgroundColor: finish.color }}
-                    />
-                    <span
-                      className={`text-sm font-medium ${
-                        selectedFinish.id === finish.id
-                          ? "text-[#4a3020]"
-                          : "text-[#8a7060]"
-                      }`}
-                    >
-                      {finish.name}
-                    </span>
-                    {selectedFinish.id === finish.id && (
-                      <span className="ml-auto w-2 h-2 rounded-full bg-[#8d8840]" />
-                    )}
-                  </button>
-                ))}
-              </div>
-            </div>
-            {/* Product Preview */}
-            <div className="flex-1 relative rounded-3xl overflow-hidden h-72 sm:h-96 w-full">
-              <img
-                src={`https://images.unsplash.com/photo-1584568694244-14fbdf83bd30?w=900&q=80`}
-                alt={selectedFinish.name}
-                className="w-full h-full object-cover"
-                style={{
-                  filter: `sepia(${
-                    selectedFinish.id === "dark-walnut"
-                      ? "0.7"
-                      : selectedFinish.id === "walnut-brown"
-                      ? "0.4"
-                      : selectedFinish.id === "classic-grey"
-                      ? "0"
-                      : "0.1"
-                  }) saturate(${
-                    selectedFinish.id === "classic-grey" ? "0.1" : "1"
-                  }) brightness(${
-                    selectedFinish.id === "simply-white" ? "1.2" : "1"
-                  })`,
-                  transition: "filter 0.4s ease",
-                }}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#2c1e10]/40 to-transparent" />
-              <div className="absolute bottom-6 left-6">
-                <span
-                  className="inline-block px-4 py-1.5 rounded-full text-sm font-medium text-white bg-black/30 backdrop-blur-sm border border-white/20"
-                >
-                  {selectedFinish.name}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
-      {/* ─── START ORGANIZING SECTION ─── */}
-      <section className="py-16 sm:py-20 bg-[#f5f1ea]">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between mb-8 gap-4">
-            <div>
-              <span className="text-[10px] uppercase tracking-[0.3em] text-[#8d8840] font-semibold">
-                Countertops
-              </span>
-              <h2 className="font-serif text-3xl sm:text-4xl text-[#2c1e10] mt-1">
-                Start Organizing
-              </h2>
-            </div>
-            <Link
-              href="/category/countertops"
-              className="text-xs uppercase tracking-[0.12em] text-[#8d8840] hover:text-[#2c1e10] font-semibold flex items-center gap-1.5 transition-colors border-b border-[#8d8840] pb-0.5 hover:border-[#2c1e10]"
-            >
-              View All <ArrowRight size={12} />
-            </Link>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 items-start">
+          {/* Product Grid - Desktop: 4 items */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5">
             {startOrganizing.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
@@ -303,27 +197,23 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ─── RUSTIC MOUNTAIN COLLECTION ─── */}
-      <section className="bg-[#EDE8DC] py-16 sm:py-20">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between mb-8 gap-4">
-            <div>
-              <span className="text-[10px] uppercase tracking-[0.3em] text-[#8d8840] font-semibold">
-                Wall Organizers
-              </span>
-              <h2 className="font-serif text-3xl sm:text-4xl text-[#2c1e10] mt-1">
-                Rustic Mountain Collection
-              </h2>
-            </div>
-            <Link
-              href="/category/wall-organizers"
-              className="text-xs uppercase tracking-[0.12em] text-[#8d8840] hover:text-[#2c1e10] font-semibold flex items-center gap-1.5 transition-colors border-b border-[#8d8840] pb-0.5 hover:border-[#2c1e10]"
-            >
-              View All <ArrowRight size={12} />
-            </Link>
+      {/* ─── RUSTIC MOUNTAIN COLLECTION (Beige Background) ─── */}
+      <section className="bg-[#EBE6D8] pt-16 pb-20 w-full border-t border-[#dcd7c8]/50">
+        <div className="max-w-[1400px] mx-auto px-4 md:px-8">
+          {/* Big Beige Banner but completely flat looking */}
+          <div className="w-full bg-[#f4ebd8] rounded-[2rem] py-16 md:py-20 flex flex-col items-center justify-center text-center shadow-sm mb-12 border border-[#dcd7c8]/20 relative overflow-hidden h-[240px] md:h-[300px]">
+             {/* Abstract background shelf image overlay */}
+             <div className="absolute left-[15%] bottom-0 top-0 w-[40%] hidden md:block opacity-90 mx-auto">
+               <img src="https://images.unsplash.com/photo-1622372736561-12c5ba7be9b1?w=600&q=80" alt="Mountain Shelf" className="h-full w-full object-cover rounded-xl scale-125 translate-y-4" style={{maskImage: 'linear-gradient(to top, black, transparent 95%)'}} />
+             </div>
+             <div className="relative z-10 md:ml-[35%] w-full flex flex-col items-center text-center px-4">
+               <h2 className="text-[#7c7160] font-sans font-light text-3xl md:text-[50px] tracking-[0.1em] md:tracking-[0.2em] mb-4 md:mb-6 uppercase leading-tight md:leading-[1.1] max-w-[600px] text-center">Rustic Mountain Collection</h2>
+               <button className="px-6 md:px-8 py-2 md:py-2.5 border-2 border-white rounded-full text-[9px] md:text-[11px] uppercase font-bold text-white tracking-[0.15em] hover:bg-white hover:text-[#7c7160] transition-colors bg-[#dcbca8]/20 backdrop-blur-sm">SHOP NOW</button>
+             </div>
           </div>
-          {/* Horizontal product row — 5 across on desktop, 3 tablet, 2 mobile */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 items-start">
+
+          {/* Product Grid - Desktop: 4 items */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5">
             {rusticMountain.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
@@ -331,71 +221,55 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ─── THE WELL STYLED ─── */}
-      <section className="relative py-24 sm:py-32 overflow-hidden">
-        <img
-          src="https://images.unsplash.com/photo-1616046229478-9901c5536a45?w=1400&q=85"
-          alt="The Well Styled"
-          className="absolute inset-0 w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-[#2c1e10]/60" />
-        <div className="relative z-10 max-w-2xl mx-auto px-6 text-center">
-          <span className="text-xs uppercase tracking-[0.3em] text-[#d4b483] mb-4 inline-block">
-            Inspiration
-          </span>
-          <h2 className="font-serif text-4xl sm:text-5xl lg:text-6xl text-white mb-4">
-            The Well Styled
-          </h2>
-          <p className="text-[#e8dfc8] text-lg sm:text-xl italic font-serif mb-8">
-            &ldquo;Your looks, our styling secrets.&rdquo;
-          </p>
-          <p className="text-[#c8bfa0] text-sm sm:text-base leading-relaxed mb-8">
-            Discover how our customers are creating beautiful, organized spaces
-            using The Well Cottage&apos;s handcrafted pieces.
-          </p>
-          <Link
-            href="/lookbook"
-            className="inline-flex items-center gap-2 bg-[#8d8840] hover:bg-[#7a7535] text-white px-8 py-4 rounded-full font-medium transition-all text-sm sm:text-base"
-          >
-            View Lookbook <ArrowRight size={18} />
-          </Link>
-        </div>
-      </section>
+      {/* ─── THE WELL STYLED (Olive Background) ─── */}
+      <section className="bg-[#69715b] py-12 md:py-16 w-full border-t border-[#858e74]/50">
+        <div className="max-w-[1400px] mx-auto px-4 md:px-8">
+          {/* Wide banner with sliced images */}
+          <div className="relative w-full h-[300px] md:h-[400px] rounded-[2rem] overflow-hidden flex border border-[#858e74]/30 shadow-md">
+             {/* 6 image columns next to each other */}
+             <div className="flex-1 bg-cover bg-center brightness-90 saturate-50" style={{backgroundImage: `url(https://images.unsplash.com/photo-1616046229478-9901c5536a45?w=600&q=80)`}}/>
+             <div className="flex-1 bg-cover bg-center brightness-75 saturate-50 hidden sm:block border-x border-white/10" style={{backgroundImage: `url(https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80)`}}/>
+             <div className="flex-1 bg-cover bg-center brightness-90 saturate-50 border-r border-white/10" style={{backgroundImage: `url(https://images.unsplash.com/photo-1584568694244-14fbdf83bd30?w=600&q=80)`}}/>
+             <div className="flex-1 bg-cover bg-center brightness-75 saturate-50 border-r border-white/10" style={{backgroundImage: `url(https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=600&q=80)`}}/>
+             <div className="flex-1 bg-cover bg-center brightness-90 saturate-50 border-r border-white/10 hidden sm:block" style={{backgroundImage: `url(https://images.unsplash.com/photo-1507641214041-e940428fa671?w=600&q=80)`}}/>
+             <div className="flex-1 bg-cover bg-center brightness-75 saturate-50 hidden md:block" style={{backgroundImage: `url(https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=600&q=80)`}}/>
+             
+             {/* Overlay Text */}
+             <div className="absolute inset-0 flex flex-col items-center justify-center z-10 bg-black/5 mix-blend-multiply pointer-events-none" />
+             <div className="absolute inset-x-0 inset-y-0 flex flex-col items-center justify-center z-20 text-center px-4">
+               <h2 className="text-[#F9F6EE] font-sans font-light text-4xl sm:text-6xl md:text-[80px] tracking-[0.25em] md:tracking-[0.4em] mb-4 md:mb-6 uppercase leading-none drop-shadow-md">The Well Styled</h2>
+               <p className="text-[#F9F6EE] font-serif italic text-sm md:text-2xl mt-0 md:mt-2 drop-shadow-md pb-8">Your looks, our styling secrets.</p>
+               <button className="px-6 md:px-10 py-2.5 rounded-full border border-white/60 text-white tracking-[0.2em] md:tracking-[0.25em] text-[10px] md:text-xs hover:bg-white/10 transition-colors uppercase backdrop-blur-md bg-white/5 font-semibold mt-4">
+                 HAVE A LOOK
+               </button>
+             </div>
+          </div>
 
-      {/* ─── STORY CARDS ─── */}
-      <section className="py-16 sm:py-20 max-w-7xl mx-auto px-6">
-        <div className="text-center mb-12">
-          <span className="text-xs uppercase tracking-[0.3em] text-[#8d8840] font-medium">
-            Know Us Better
-          </span>
-          <h2 className="font-serif text-4xl sm:text-5xl text-[#4a3020] mt-2">
-            Our Story
-          </h2>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          {STORY_CARDS.map((card) => (
-            <Link
-              key={card.title}
-              href={card.href}
-              className="group relative rounded-3xl overflow-hidden h-72 sm:h-80 block"
-            >
-              <img
-                src={card.image}
-                alt={card.title}
-                className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#2c1e10]/80 via-[#2c1e10]/20 to-transparent" />
-              <div className="absolute bottom-6 left-6 right-6">
-                <h3 className="font-serif text-xl sm:text-2xl text-white mb-1">
-                  {card.title}
-                </h3>
-                <p className="text-[#c8bfa0] text-sm">{card.description}</p>
-                <span className="inline-flex items-center gap-1 text-[#d4b483] text-xs mt-3 group-hover:gap-2 transition-all">
-                  Read more <ArrowRight size={12} />
-                </span>
+          {/* Story Cards - 3 Columns below */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-5 mt-4 w-full">
+            {/* 1 */}
+            <Link href="/story" className="relative group rounded-2xl md:rounded-[2rem] overflow-hidden h-[180px] md:h-[220px] block border border-[#858e74]/20">
+              <img src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=600&q=80" alt="Our Story" className="absolute inset-0 w-full h-full object-cover  mix-blend-overlay opacity-50 bg-[#3a2f24] group-hover:scale-105 transition-transform duration-700" />
+              <div className="absolute inset-x-0 bottom-6 md:bottom-10 text-center flex flex-col items-center">
+                <h3 className="text-white text-xs md:text-sm tracking-[0.2em] font-medium uppercase">Our Story</h3>
+                <p className="text-white/80 text-[8px] md:text-[9px] font-bold tracking-[0.1em] uppercase mt-1">(Pic of the owner)</p>
               </div>
             </Link>
-          ))}
+            {/* 2 */}
+            <Link href="/materials" className="relative group rounded-2xl md:rounded-[2rem] overflow-hidden h-[180px] md:h-[220px] block border border-[#858e74]/20">
+              <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80" alt="Materials In Use" className="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-40 bg-[#3a2f24] group-hover:scale-105 transition-transform duration-700" />
+              <div className="absolute inset-x-0 bottom-8 text-center px-4">
+                <h3 className="text-[#f9f9f9] text-[13px] md:text-base tracking-[0.15em] md:tracking-[0.25em] font-light uppercase leading-snug">Materials<br/>In Use</h3>
+              </div>
+            </Link>
+            {/* 3 */}
+            <Link href="/artisans" className="relative group rounded-2xl md:rounded-[2rem] overflow-hidden h-[180px] md:h-[220px] block border border-[#858e74]/20">
+              <img src="https://images.unsplash.com/photo-1565193566173-7a0ee3dbe261?w=600&q=80" alt="Hands Behind Our Products" className="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-50 bg-[#3a2f24] group-hover:scale-105 transition-transform duration-700" />
+              <div className="absolute inset-x-0 bottom-8 text-center px-8">
+                <h3 className="text-[#f9f9f9] text-[13px] md:text-base tracking-[0.15em] md:tracking-[0.25em] font-light uppercase leading-snug">Hands Behind<br/>Our<br/>Products</h3>
+              </div>
+            </Link>
+          </div>
         </div>
       </section>
     </div>
