@@ -1,183 +1,509 @@
-import { useState, useEffect } from 'react';
-import axios from '../../api/axios';
-import { FileText, Upload, Eye, Clock, Shield, Lock, Trash2 } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import api from '../../api/axios';
+import {
+    FileText, Upload, Eye, Clock, Shield, Lock, Trash2, Pencil,
+    Check, X, ArrowLeft, RefreshCw, FileImage, File, Download,
+    CloudUpload, AlertTriangle, FolderOpen
+} from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+
+// ─── Helpers ────────────────────────────────────────────────────────────────
+
+const FILE_ICONS = {
+    'application/pdf': { icon: FileText, bg: 'bg-red-50', text: 'text-red-500', label: 'PDF' },
+    'image/jpeg':      { icon: FileImage, bg: 'bg-purple-50', text: 'text-purple-500', label: 'Image' },
+    'image/png':       { icon: FileImage, bg: 'bg-purple-50', text: 'text-purple-500', label: 'Image' },
+    'image/webp':      { icon: FileImage, bg: 'bg-purple-50', text: 'text-purple-500', label: 'Image' },
+    'image/gif':       { icon: FileImage, bg: 'bg-purple-50', text: 'text-purple-500', label: 'Image' },
+    default:           { icon: File, bg: 'bg-blue-50', text: 'text-blue-500', label: 'Document' },
+};
+
+const getFileIcon = (mime) => FILE_ICONS[mime] || FILE_ICONS.default;
+
+const formatBytes = (bytes) => {
+    if (!bytes) return '';
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+};
+
+const formatDate = (d) =>
+    new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+
+// ─── Upload Drop Zone ────────────────────────────────────────────────────────
+
+const UploadZone = ({ onUpload, uploading }) => {
+    const fileRef = useRef();
+    const [dragOver, setDragOver] = useState(false);
+    const [form, setForm] = useState({ title: '', description: '', file: null });
+    const [preview, setPreview] = useState(null);
+
+    const handleFile = (file) => {
+        setForm(f => ({ ...f, file, title: f.title || file.name.replace(/\.[^.]+$/, '') }));
+        if (file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = e => setPreview(e.target.result);
+            reader.readAsDataURL(file);
+        } else {
+            setPreview(null);
+        }
+    };
+
+    const handleDrop = (e) => {
+        e.preventDefault();
+        setDragOver(false);
+        const file = e.dataTransfer.files[0];
+        if (file) handleFile(file);
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!form.file) return;
+        const fd = new FormData();
+        fd.append('file', form.file);
+        fd.append('title', form.title || form.file.name);
+        fd.append('description', form.description);
+        const success = await onUpload(fd);
+        if (success) {
+            setForm({ title: '', description: '', file: null });
+            setPreview(null);
+        }
+    };
+
+    return (
+        <form onSubmit={handleSubmit} className="bg-white rounded-3xl border border-gray-100 shadow-sm overflow-hidden">
+            {/* Drop area */}
+            <div
+                onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                onDragLeave={() => setDragOver(false)}
+                onDrop={handleDrop}
+                onClick={() => !form.file && fileRef.current?.click()}
+                className={`
+                    relative cursor-pointer transition-all duration-200 p-8 flex flex-col items-center justify-center gap-3 border-b border-dashed border-gray-200
+                    ${dragOver ? 'bg-emerald-50 border-emerald-300' : 'hover:bg-gray-50'}
+                    ${form.file ? 'bg-emerald-50/40 cursor-default' : ''}
+                `}
+            >
+                <input
+                    ref={fileRef}
+                    type="file"
+                    className="hidden"
+                    accept=".pdf,.jpg,.jpeg,.png,.webp,.doc,.docx"
+                    onChange={e => e.target.files[0] && handleFile(e.target.files[0])}
+                />
+                {form.file ? (
+                    <div className="flex items-center gap-4 w-full">
+                        {preview ? (
+                            <img src={preview} alt="preview" className="h-16 w-16 rounded-xl object-cover border border-gray-200" />
+                        ) : (
+                            <div className={`h-16 w-16 rounded-xl flex items-center justify-center ${getFileIcon(form.file.type).bg}`}>
+                                {(() => { const I = getFileIcon(form.file.type).icon; return <I className={`h-7 w-7 ${getFileIcon(form.file.type).text}`} />; })()}
+                            </div>
+                        )}
+                        <div className="flex-1 min-w-0 text-left">
+                            <p className="font-bold text-gray-900 truncate">{form.file.name}</p>
+                            <p className="text-sm text-gray-500">{getFileIcon(form.file.type).label} • {formatBytes(form.file.size)}</p>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); setForm(f => ({ ...f, file: null, title: '' })); setPreview(null); }}
+                            className="p-2 rounded-full hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors"
+                        >
+                            <X className="h-5 w-5" />
+                        </button>
+                    </div>
+                ) : (
+                    <>
+                        <div className="w-14 h-14 bg-emerald-50 rounded-2xl flex items-center justify-center">
+                            <CloudUpload className="h-7 w-7 text-emerald-500" />
+                        </div>
+                        <div className="text-center">
+                            <p className="font-bold text-gray-800">Drop a file here or <span className="text-emerald-600">browse</span></p>
+                            <p className="text-sm text-gray-400 mt-1">PDF, Images, Word Docs • Max 50 MB</p>
+                        </div>
+                    </>
+                )}
+            </div>
+
+            {/* Metadata fields */}
+            <div className="p-6 space-y-4">
+                <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Document Title <span className="text-red-400">*</span></label>
+                    <input
+                        type="text"
+                        required
+                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all text-gray-900"
+                        placeholder="e.g., Blood Test Report — Jan 2026"
+                        value={form.title}
+                        onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
+                    />
+                </div>
+                <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1.5">Notes <span className="text-gray-400 font-normal">(Optional)</span></label>
+                    <textarea
+                        rows={2}
+                        className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all resize-none text-gray-900"
+                        placeholder="Add context, e.g. 'Fasting blood sugar test. Results: normal.'"
+                        value={form.description}
+                        onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
+                    />
+                </div>
+                <button
+                    type="submit"
+                    disabled={uploading || !form.file}
+                    className="w-full bg-emerald-600 text-white py-3 rounded-xl font-bold shadow-md shadow-emerald-600/20 hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                    {uploading
+                        ? <><RefreshCw className="h-4 w-4 animate-spin" /> Uploading…</>
+                        : <><Upload className="h-4 w-4" /> Save Document</>}
+                </button>
+            </div>
+        </form>
+    );
+};
+
+// ─── Record Card ─────────────────────────────────────────────────────────────
+
+const RecordCard = ({ record, onDelete, onUpdate }) => {
+    const [editing, setEditing] = useState(false);
+    const [saving, setSaving] = useState(false);
+    const [deleting, setDeleting] = useState(false);
+    const [confirmDelete, setConfirmDelete] = useState(false);
+    const [editForm, setEditForm] = useState({ title: record.title, description: record.description || '' });
+
+    const { icon: Icon, bg, text, label } = getFileIcon(record.file_type);
+
+    const handleSave = async () => {
+        setSaving(true);
+        await onUpdate(record._id, editForm);
+        setSaving(false);
+        setEditing(false);
+    };
+
+    const handleDelete = async () => {
+        setDeleting(true);
+        await onDelete(record._id);
+        setDeleting(false);
+    };
+
+    return (
+        <motion.div
+            layout
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95 }}
+            className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden"
+        >
+            <div className="p-4 flex items-start gap-4">
+                {/* Icon */}
+                <div className={`flex-shrink-0 h-12 w-12 rounded-xl flex items-center justify-center ${bg}`}>
+                    <Icon className={`h-6 w-6 ${text}`} />
+                </div>
+
+                {/* Content */}
+                <div className="flex-1 min-w-0">
+                    {editing ? (
+                        <div className="space-y-2">
+                            <input
+                                autoFocus
+                                className="w-full px-3 py-1.5 rounded-lg border border-emerald-300 text-sm font-bold text-gray-900 bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                                value={editForm.title}
+                                onChange={e => setEditForm(f => ({ ...f, title: e.target.value }))}
+                            />
+                            <textarea
+                                rows={2}
+                                className="w-full px-3 py-1.5 rounded-lg border border-gray-200 text-sm text-gray-600 bg-gray-50 focus:outline-none focus:ring-1 focus:ring-emerald-400 resize-none"
+                                placeholder="Add notes…"
+                                value={editForm.description}
+                                onChange={e => setEditForm(f => ({ ...f, description: e.target.value }))}
+                            />
+                        </div>
+                    ) : (
+                        <>
+                            <h3 className="font-bold text-gray-900 truncate">{record.title}</h3>
+                            {record.description && (
+                                <p className="text-sm text-gray-500 mt-0.5 line-clamp-1">{record.description}</p>
+                            )}
+                        </>
+                    )}
+                    <div className="flex items-center gap-2 mt-1.5">
+                        <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${bg} ${text}`}>{label}</span>
+                        <span className="text-xs text-gray-400 flex items-center gap-1">
+                            <Clock className="h-3 w-3" /> {formatDate(record.uploadedAt)}
+                        </span>
+                        <span className="text-xs text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded flex items-center gap-0.5">
+                            <Lock className="h-2.5 w-2.5" /> Secure
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            {/* Action bar */}
+            <div className="border-t border-gray-50 px-4 py-2.5 flex items-center justify-between gap-2 bg-gray-50/50">
+                {editing ? (
+                    <div className="flex gap-2 w-full">
+                        <button
+                            onClick={handleSave}
+                            disabled={saving || !editForm.title.trim()}
+                            className="flex-1 flex items-center justify-center gap-1.5 text-xs font-bold px-3 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition-colors disabled:opacity-50"
+                        >
+                            {saving ? <RefreshCw className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
+                            Save Changes
+                        </button>
+                        <button
+                            onClick={() => { setEditing(false); setEditForm({ title: record.title, description: record.description || '' }); }}
+                            className="flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-lg bg-white border border-gray-200 text-gray-600 hover:bg-gray-100 transition-colors"
+                        >
+                            <X className="h-3.5 w-3.5" /> Cancel
+                        </button>
+                    </div>
+                ) : (
+                    <>
+                        <div className="flex gap-1.5">
+                            {record.file_url && (
+                                <a
+                                    href={record.file_url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg text-gray-600 hover:text-indigo-700 hover:bg-indigo-50 transition-colors"
+                                >
+                                    <Eye className="h-3.5 w-3.5" /> View
+                                </a>
+                            )}
+                            {record.file_url && (
+                                <a
+                                    href={record.file_url}
+                                    download
+                                    className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg text-gray-600 hover:text-blue-700 hover:bg-blue-50 transition-colors"
+                                >
+                                    <Download className="h-3.5 w-3.5" /> Download
+                                </a>
+                            )}
+                        </div>
+                        <div className="flex gap-1.5">
+                            <button
+                                onClick={() => setEditing(true)}
+                                className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg text-gray-500 hover:text-amber-700 hover:bg-amber-50 transition-colors"
+                            >
+                                <Pencil className="h-3.5 w-3.5" /> Edit
+                            </button>
+                            {confirmDelete ? (
+                                <div className="flex items-center gap-1.5">
+                                    <span className="text-xs text-red-600 font-semibold">Sure?</span>
+                                    <button
+                                        onClick={handleDelete}
+                                        disabled={deleting}
+                                        className="text-xs font-bold px-2.5 py-1.5 rounded-lg bg-red-500 text-white hover:bg-red-600 transition-colors disabled:opacity-50"
+                                    >
+                                        {deleting ? <RefreshCw className="h-3 w-3 animate-spin" /> : 'Yes, delete'}
+                                    </button>
+                                    <button
+                                        onClick={() => setConfirmDelete(false)}
+                                        className="text-xs font-bold px-2.5 py-1.5 rounded-lg border border-gray-200 text-gray-500 hover:bg-gray-100"
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            ) : (
+                                <button
+                                    onClick={() => setConfirmDelete(true)}
+                                    className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                                >
+                                    <Trash2 className="h-3.5 w-3.5" /> Delete
+                                </button>
+                            )}
+                        </div>
+                    </>
+                )}
+            </div>
+        </motion.div>
+    );
+};
+
+// ─── Main Page ───────────────────────────────────────────────────────────────
 
 const MedicalRecords = () => {
+    const navigate = useNavigate();
     const [records, setRecords] = useState([]);
     const [loading, setLoading] = useState(true);
     const [uploading, setUploading] = useState(false);
     const [showUpload, setShowUpload] = useState(false);
-    const [formData, setFormData] = useState({ title: '', description: '', file: null });
+    const [toast, setToast] = useState(null);
 
-    useEffect(() => {
-        fetchRecords();
-    }, []);
+    const user = JSON.parse(localStorage.getItem('user'));
+
+    const showToast = (msg, type = 'success') => {
+        setToast({ msg, type });
+        setTimeout(() => setToast(null), 3000);
+    };
 
     const fetchRecords = async () => {
+        setLoading(true);
         try {
-            const user = JSON.parse(localStorage.getItem('user'));
-            const { data } = await axios.get(`/records/${user._id}`);
+            const { data } = await api.get(`/records/${user._id}`);
             setRecords(data);
-        } catch (error) {
-            console.error('Error fetching records:', error);
+        } catch (err) {
+            console.error('Fetch records error:', err);
+            showToast('Failed to load records.', 'error');
         } finally {
             setLoading(false);
         }
     };
 
-    const handleFileChange = (e) => {
-        setFormData({ ...formData, file: e.target.files[0] });
-    };
+    useEffect(() => { fetchRecords(); }, []);
 
-    const handleUpload = async (e) => {
-        e.preventDefault();
-        if (!formData.file) return;
-
+    const handleUpload = async (formData) => {
         setUploading(true);
-        const data = new FormData();
-        data.append('file', formData.file);
-        data.append('title', formData.title);
-        data.append('description', formData.description);
-
         try {
-            await axios.post('/records/upload', data);
+            const { data } = await api.post('/records/upload', formData);
+            setRecords(prev => [data, ...prev]);
             setShowUpload(false);
-            setFormData({ title: '', description: '', file: null });
-            fetchRecords(); // Refresh list
-        } catch (error) {
-            console.error('Upload failed:', error);
-            alert('Upload failed. Please try again.');
+            showToast('Document uploaded successfully.');
+            return true;
+        } catch (err) {
+            console.error('Upload error:', err);
+            showToast(err?.response?.data?.message || 'Upload failed. Try again.', 'error');
+            return false;
         } finally {
             setUploading(false);
         }
     };
 
     const handleDelete = async (id) => {
-        if (!window.confirm('Are you sure you want to delete this record? This cannot be undone.')) return;
-
         try {
-            await axios.delete(`/records/${id}`);
-            setRecords(records.filter(r => r._id !== id));
-        } catch (error) {
-            console.error('Delete failed:', error);
-            alert('Failed to delete record.');
+            await api.delete(`/records/${id}`);
+            setRecords(prev => prev.filter(r => r._id !== id));
+            showToast('Document deleted.');
+        } catch (err) {
+            console.error('Delete error:', err);
+            showToast('Failed to delete document.', 'error');
+        }
+    };
+
+    const handleUpdate = async (id, updates) => {
+        try {
+            const { data } = await api.patch(`/records/${id}`, updates);
+            setRecords(prev => prev.map(r => r._id === id ? { ...r, ...data } : r));
+            showToast('Document updated.');
+        } catch (err) {
+            console.error('Update error:', err);
+            showToast('Failed to update document.', 'error');
         }
     };
 
     return (
-        <div className="bg-slate-50 min-h-screen pb-20">
-            <div className="bg-emerald-600 px-6 pt-12 pb-8 rounded-b-[40px] shadow-lg mb-6">
-                <div className="flex items-center justify-between mb-4">
-                    <h1 className="text-2xl font-bold text-white">Medical Records</h1>
-                    <Shield className="text-emerald-200 h-6 w-6" />
+        <div className="min-h-screen bg-slate-50 pb-20">
+            {/* Header */}
+            <div className="bg-gradient-to-br from-emerald-600 to-teal-700 px-6 pt-12 pb-10 rounded-b-[36px] shadow-lg">
+                <button
+                    onClick={() => navigate('/dashboard')}
+                    className="flex items-center gap-2 text-emerald-100 hover:text-white transition-colors mb-6 text-sm font-semibold"
+                >
+                    <ArrowLeft className="h-4 w-4" /> Dashboard
+                </button>
+                <div className="flex items-end justify-between">
+                    <div>
+                        <p className="text-emerald-200 text-xs font-bold uppercase tracking-widest mb-1">Health Vault</p>
+                        <h1 className="text-3xl font-black text-white leading-tight">My Documents</h1>
+                        <p className="text-emerald-100 text-sm mt-1">
+                            {records.length} document{records.length !== 1 ? 's' : ''} • End-to-end encrypted
+                        </p>
+                    </div>
+                    <div className="bg-white/20 backdrop-blur p-3 rounded-2xl">
+                        <Shield className="h-8 w-8 text-white" />
+                    </div>
                 </div>
-                <p className="text-emerald-100 text-sm">Securely store and share your documents.</p>
             </div>
 
-            <div className="px-6 space-y-4">
+            <div className="px-6 -mt-4 space-y-4 max-w-2xl mx-auto">
+                {/* Upload toggle */}
                 <button
-                    onClick={() => setShowUpload(!showUpload)}
-                    className="w-full bg-white p-4 rounded-xl border border-dashed border-emerald-300 text-emerald-600 flex items-center justify-center gap-2 hover:bg-emerald-50 transition-colors"
+                    onClick={() => setShowUpload(v => !v)}
+                    className={`w-full flex items-center justify-center gap-2.5 p-4 rounded-2xl font-bold text-sm transition-all ${
+                        showUpload
+                            ? 'bg-gray-100 text-gray-600 border border-gray-200'
+                            : 'bg-emerald-600 text-white shadow-lg shadow-emerald-600/30 hover:bg-emerald-700'
+                    }`}
                 >
-                    <Upload className="h-5 w-5" />
-                    <span className="font-semibold">Upload New Record</span>
+                    {showUpload
+                        ? <><X className="h-4 w-4" /> Cancel Upload</>
+                        : <><CloudUpload className="h-4 w-4" /> Upload New Document</>}
                 </button>
 
-                {showUpload && (
-                    <form onSubmit={handleUpload} className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 animate-in fade-in slide-in-from-top-4">
-                        <div className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
-                                <input
-                                    type="text"
-                                    required
-                                    className="w-full p-3 rounded-xl border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                                    placeholder="e.g., Blood Test Report"
-                                    value={formData.title}
-                                    onChange={e => setFormData({ ...formData, title: e.target.value })}
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Description (Optional)</label>
-                                <textarea
-                                    className="w-full p-3 rounded-xl border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                                    placeholder="Add details..."
-                                    value={formData.description}
-                                    onChange={e => setFormData({ ...formData, description: e.target.value })}
-                                />
-                            </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">File</label>
-                                <input
-                                    type="file"
-                                    required
-                                    accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
-                                    className="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100"
-                                    onChange={handleFileChange}
-                                />
-                                <p className="text-xs text-gray-400 mt-1">Supported: PDF, Images, Docs</p>
-                            </div>
-                            <button
-                                type="submit"
-                                disabled={uploading}
-                                className="w-full bg-emerald-600 text-white py-3 rounded-xl font-bold shadow-md hover:bg-emerald-700 transition-colors disabled:opacity-50"
-                            >
-                                {uploading ? 'Uploading...' : 'Save Record'}
-                            </button>
-                        </div>
-                    </form>
-                )}
-
-                <div className="space-y-3">
-                    {loading ? (
-                        <p className="text-center text-gray-400 py-8">Loading records...</p>
-                    ) : records.length === 0 ? (
-                        <div className="text-center py-10 bg-white rounded-2xl border border-gray-100">
-                            <FileText className="h-12 w-12 text-gray-200 mx-auto mb-3" />
-                            <p className="text-gray-400">No records uploaded yet.</p>
-                        </div>
-                    ) : (
-                        records.map(record => (
-                            <div key={record._id} className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between">
-                                <div className="flex items-center gap-4">
-                                    <div className="bg-indigo-50 h-10 w-10 rounded-full flex items-center justify-center text-indigo-500">
-                                        <FileText className="h-5 w-5" />
-                                    </div>
-                                    <div>
-                                        <h3 className="font-bold text-gray-800">{record.title}</h3>
-                                        <p className="text-xs text-gray-400 flex items-center gap-1">
-                                            <Clock className="h-3 w-3" />
-                                            {new Date(record.uploadedAt).toLocaleDateString()}
-                                            <span className="flex items-center gap-0.5 text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded ml-2">
-                                                <Lock className="h-3 w-3" /> Encrypted
-                                            </span>
-                                        </p>
-                                    </div>
-                                </div>
-                                <div className="flex gap-2">
-                                    <a
-                                        href={record.file_url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded-lg text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 transition-all text-sm font-medium"
-                                        title="Securely View File"
-                                    >
-                                        <Eye className="h-4 w-4" />
-                                        View
-                                    </a>
-                                    <button
-                                        onClick={() => handleDelete(record._id)}
-                                        className="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-all text-sm font-medium"
-                                        title="Delete File"
-                                    >
-                                        <Trash2 className="h-4 w-4" />
-                                    </button>
-                                </div>
-                            </div>
-                        ))
+                {/* Upload form */}
+                <AnimatePresence>
+                    {showUpload && (
+                        <motion.div
+                            key="upload-form"
+                            initial={{ opacity: 0, height: 0 }}
+                            animate={{ opacity: 1, height: 'auto' }}
+                            exit={{ opacity: 0, height: 0 }}
+                            className="overflow-hidden"
+                        >
+                            <UploadZone onUpload={handleUpload} uploading={uploading} />
+                        </motion.div>
                     )}
-                </div>
+                </AnimatePresence>
+
+                {/* Records list */}
+                {loading ? (
+                    <div className="flex items-center justify-center py-20 text-gray-400">
+                        <RefreshCw className="h-5 w-5 animate-spin mr-2" /> Loading documents…
+                    </div>
+                ) : records.length === 0 ? (
+                    <div className="text-center py-16 bg-white rounded-3xl border border-gray-100 shadow-sm">
+                        <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <FolderOpen className="h-9 w-9 text-gray-300" />
+                        </div>
+                        <h3 className="font-bold text-gray-700 text-lg">No documents yet</h3>
+                        <p className="text-sm text-gray-400 mt-1 max-w-xs mx-auto">
+                            Upload prescriptions, lab results, X-rays, or any health document.
+                        </p>
+                        <button
+                            onClick={() => setShowUpload(true)}
+                            className="mt-5 px-6 py-2.5 bg-emerald-600 text-white rounded-xl font-bold text-sm hover:bg-emerald-700 transition-colors"
+                        >
+                            Upload First Document
+                        </button>
+                    </div>
+                ) : (
+                    <div className="space-y-3">
+                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest px-1">
+                            Your Documents
+                        </p>
+                        <AnimatePresence mode="popLayout">
+                            {records.map(record => (
+                                <RecordCard
+                                    key={record._id}
+                                    record={record}
+                                    onDelete={handleDelete}
+                                    onUpdate={handleUpdate}
+                                />
+                            ))}
+                        </AnimatePresence>
+                    </div>
+                )}
             </div>
+
+            {/* Toast notification */}
+            <AnimatePresence>
+                {toast && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 40 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 40 }}
+                        className={`fixed bottom-6 left-1/2 -translate-x-1/2 px-5 py-3 rounded-2xl text-sm font-bold text-white shadow-xl flex items-center gap-2 ${
+                            toast.type === 'error' ? 'bg-red-500' : 'bg-gray-900'
+                        }`}
+                    >
+                        {toast.type === 'error'
+                            ? <AlertTriangle className="h-4 w-4" />
+                            : <Check className="h-4 w-4 text-emerald-400" />}
+                        {toast.msg}
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };

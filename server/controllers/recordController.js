@@ -166,4 +166,51 @@ const deleteRecord = async (req, res) => {
     }
 };
 
-module.exports = { uploadRecord, getRecords, deleteRecord };
+// @desc    Update a medical record's metadata (title / description)
+// @route   PATCH /api/records/:id
+// @access  Private (Owner only)
+const updateRecord = async (req, res) => {
+    try {
+        const recordId = req.params.id;
+        const userId = req.user._id;
+        const { title, description } = req.body;
+
+        if (!title && description === undefined) {
+            return res.status(400).json({ message: 'Nothing to update. Provide title or description.' });
+        }
+
+        // 1. Fetch record and verify ownership
+        const { data: record, error: fetchError } = await supabase
+            .from('medical_records')
+            .select('*')
+            .eq('_id', recordId)
+            .maybeSingle();
+
+        if (fetchError) throw fetchError;
+        if (!record) return res.status(404).json({ message: 'Record not found' });
+        if (record.patient !== userId) {
+            return res.status(403).json({ message: 'Not authorized to update this record' });
+        }
+
+        // 2. Build update payload
+        const updates = {};
+        if (title !== undefined) updates.title = title.trim();
+        if (description !== undefined) updates.description = description.trim();
+
+        const { data: updated, error: updateError } = await supabase
+            .from('medical_records')
+            .update(updates)
+            .eq('_id', recordId)
+            .select()
+            .single();
+
+        if (updateError) throw updateError;
+
+        res.json(updated);
+    } catch (error) {
+        console.error('Update Record Error:', error.message);
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
+module.exports = { uploadRecord, getRecords, deleteRecord, updateRecord };
