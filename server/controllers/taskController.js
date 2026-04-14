@@ -1,4 +1,5 @@
 const supabase = require('../config/supabaseClient');
+const { randomUUID } = require('crypto');
 
 // @desc    Create a new task (Doctor only)
 // @route   POST /api/tasks
@@ -152,52 +153,72 @@ const checkOverdueTasks = async () => {
             .eq('isCompleted', false)
             .lt('scheduledTime', now);
 
-        if (!overdueTasks) return;
+        if (!overdueTasks || overdueTasks.length === 0) return;
 
         for (const task of overdueTasks) {
-            // Check existing alert
+            // Check if ANY alert already exists for this task — use maybeSingle() to
+            // avoid PGRST116 error when no rows are found.
             const { data: existingAlert } = await supabase
                 .from('alerts')
                 .select('_id')
                 .eq('task', task._id)
-                .single();
+                .maybeSingle();
 
             if (existingAlert) continue;
 
-            let recipientId;
-            let message;
-            let severity;
+            const missedTime = new Date(task.scheduledTime).toLocaleTimeString('en-IN', {
+                hour: '2-digit', minute: '2-digit'
+            });
+            const alertsToInsert = [];
 
-            if (task.priority === 'critical') {
-                recipientId = task.assignedBy;
-                message = `CRITICAL: Patient missed ${task.title} at ${new Date(task.scheduledTime).toLocaleTimeString()}`;
-                severity = 'critical';
-            } else {
-                // Find caregiver
-                const { data: caregiver } = await supabase
-                    .from('users')
-                    .select('_id')
-                    .eq('relatedPatient', task.patient)
-                    .eq('role', 'caregiver')
-                    .single();
+            // Always notify the caregiver (if linked) for every missed dose.
+            const { data: caregiver } = await supabase
+                .from('users')
+                .select('_id')
+                .eq('relatedPatient', task.patient)
+                .eq('role', 'caregiver')
+                .maybeSingle();
 
-                if (caregiver) {
-                    recipientId = caregiver._id;
-                    message = `Patient missed ${task.title}. Please check in.`;
-                    severity = 'non-critical';
-                }
-            }
+            if (caregiver) {
+                const severity = task.priority === 'critical' ? 'critical' : 'non-critical';
+                const message = task.priority === 'critical'
+                    ? `CRITICAL: Patient missed ${task.title} scheduled at ${missedTime}. Immediate attention required.`
+                    : `Patient missed "${task.title}" scheduled at ${missedTime}. Please check in.`;
 
-            if (recipientId) {
-                await supabase.from('alerts').insert([{
-                    _id: String(Date.now() + Math.random()),
+                alertsToInsert.push({
+                    _id: randomUUID(),
                     task: task._id,
-                    recipient: recipientId,
+                    recipient: caregiver._id,
                     message,
                     severity,
+                    isRead: false,
                     createdAt: new Date().toISOString()
-                }]);
-                console.log(`Alert sent to ${recipientId} for task ${task.title}`);
+                });
+            }
+
+            // Also notify the assigning doctor for critical tasks.
+            if (task.priority === 'critical' && task.assignedBy) {
+                alertsToInsert.push({
+                    _id: randomUUID(),
+                    task: task._id,
+                    recipient: task.assignedBy,
+                    message: `CRITICAL: Patient missed ${task.title} scheduled at ${missedTime}.`,
+                    severity: 'critical',
+                    isRead: false,
+                    createdAt: new Date().toISOString()
+                });
+            }
+
+            if (alertsToInsert.length > 0) {
+                const { error: insertError } = await supabase
+                    .from('alerts')
+                    .insert(alertsToInsert);
+
+                if (insertError) {
+                    console.error(`Alert insert error for task ${task.title}:`, insertError.message);
+                } else {
+                    console.log(`Alerts created for task "${task.title}" — ${alertsToInsert.length} recipient(s).`);
+                }
             }
         }
     } catch (error) {

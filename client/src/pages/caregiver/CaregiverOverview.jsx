@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, User, TrendingUp, CheckCircle2, XCircle, Clock, RefreshCw } from 'lucide-react';
+import { ArrowLeft, User, TrendingUp, CheckCircle2, XCircle, Clock, RefreshCw, UserX, AlertTriangle } from 'lucide-react';
 import api from '../../api/axios';
 import clsx from 'clsx';
 
@@ -9,19 +9,29 @@ const CaregiverOverview = () => {
     const [patient, setPatient] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [errorType, setErrorType] = useState(null); // 'no_patient' | 'server'
+
+    const fetchPatient = async () => {
+        setLoading(true);
+        setError(null);
+        setErrorType(null);
+        try {
+            const { data } = await api.get('/caregiver/patient');
+            setPatient(data);
+        } catch (err) {
+            const serverMsg = err?.response?.data?.message || '';
+            const isNoPatient = err?.response?.status === 404 ||
+                serverMsg.toLowerCase().includes('no patient') ||
+                serverMsg.toLowerCase().includes('not linked');
+            setErrorType(isNoPatient ? 'no_patient' : 'server');
+            setError(serverMsg || 'Could not load patient data.');
+            console.error('[CaregiverOverview]', err);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
-        const fetchPatient = async () => {
-            try {
-                const { data } = await api.get('/caregiver/patient');
-                setPatient(data);
-            } catch (err) {
-                setError('Could not load patient data.');
-                console.error(err);
-            } finally {
-                setLoading(false);
-            }
-        };
         fetchPatient();
     }, []);
 
@@ -44,7 +54,40 @@ const CaregiverOverview = () => {
                     <RefreshCw className="h-5 w-5 animate-spin mr-2" /> Loading...
                 </div>
             ) : error ? (
-                <div className="p-4 bg-red-50 border border-red-200 rounded-2xl text-red-700 text-center">{error}</div>
+                <div className="max-w-2xl mx-auto">
+                    {errorType === 'no_patient' ? (
+                        <div className="bg-amber-50 border border-amber-200 rounded-3xl p-8 text-center">
+                            <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <UserX className="h-8 w-8 text-amber-500" />
+                            </div>
+                            <h3 className="text-lg font-bold text-amber-900 mb-2">No Patient Linked</h3>
+                            <p className="text-amber-700 text-sm leading-relaxed mb-5">
+                                Your caregiver account isn't linked to a patient yet.<br />
+                                Please ask your administrator to set the <code className="bg-amber-100 px-1 rounded">relatedPatient</code> field on your account.
+                            </p>
+                            <button
+                                onClick={fetchPatient}
+                                className="inline-flex items-center gap-2 px-5 py-2.5 bg-amber-500 text-white font-semibold rounded-xl hover:bg-amber-600 transition-colors text-sm"
+                            >
+                                <RefreshCw className="h-4 w-4" /> Retry
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="bg-red-50 border border-red-200 rounded-3xl p-8 text-center">
+                            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <AlertTriangle className="h-8 w-8 text-red-500" />
+                            </div>
+                            <h3 className="text-lg font-bold text-red-900 mb-2">Something went wrong</h3>
+                            <p className="text-red-600 text-sm mb-5">{error}</p>
+                            <button
+                                onClick={fetchPatient}
+                                className="inline-flex items-center gap-2 px-5 py-2.5 bg-red-500 text-white font-semibold rounded-xl hover:bg-red-600 transition-colors text-sm"
+                            >
+                                <RefreshCw className="h-4 w-4" /> Try Again
+                            </button>
+                        </div>
+                    )}
+                </div>
             ) : patient ? (
                 <div className="max-w-2xl mx-auto space-y-6">
                     {/* Patient Profile Card */}

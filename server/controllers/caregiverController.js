@@ -5,24 +5,30 @@ const supabase = require('../config/supabaseClient');
 // @access  Caregiver
 const getLinkedPatient = async (req, res) => {
     try {
-        const caregiverId = req.user._id;
         const relatedPatientId = req.user.relatedPatient;
 
         if (!relatedPatientId) {
-            return res.status(404).json({ message: 'No patient linked to this caregiver account.' });
+            return res.status(404).json({
+                message: 'No patient is linked to this caregiver account. Please ask your administrator to set the relatedPatient field.'
+            });
         }
 
         const { data: patient, error } = await supabase
             .from('users')
-            .select('_id, name, email, role, assignedDoctor, createdAt')
+            .select('_id, name, email, role, "assignedDoctor", "createdAt"')
             .eq('_id', relatedPatientId)
-            .single();
+            .maybeSingle();
 
-        if (error || !patient) {
-            return res.status(404).json({ message: 'Linked patient not found.' });
+        if (error) {
+            console.error('Supabase error fetching linked patient:', error.message);
+            return res.status(500).json({ message: 'Server error fetching patient.' });
         }
 
-        // Also get adherence stats: completed vs total tasks for today
+        if (!patient) {
+            return res.status(404).json({ message: 'Linked patient not found in the database.' });
+        }
+
+        // Get adherence stats: completed vs total tasks for today
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         const tomorrow = new Date(today);
@@ -30,7 +36,7 @@ const getLinkedPatient = async (req, res) => {
 
         const { data: todayTasks } = await supabase
             .from('tasks')
-            .select('isCompleted')
+            .select('"isCompleted"')
             .eq('patient', relatedPatientId)
             .gte('scheduledTime', today.toISOString())
             .lt('scheduledTime', tomorrow.toISOString());

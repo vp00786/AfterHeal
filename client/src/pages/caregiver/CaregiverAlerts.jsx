@@ -34,7 +34,8 @@ const CaregiverAlerts = () => {
         setMarking(alertId);
         try {
             const { data: updated } = await api.put(`/alerts/${alertId}/read`);
-            setAlerts(prev => prev.map(a => a._id === alertId ? updated : a));
+            // Merge the server-returned updated alert back into state
+            setAlerts(prev => prev.map(a => a._id === alertId ? { ...a, ...updated, isRead: true } : a));
         } catch (err) {
             console.error('Failed to mark alert as read:', err);
         } finally {
@@ -119,9 +120,15 @@ const CaregiverAlerts = () => {
             ) : filtered.length === 0 ? (
                 <div className="text-center py-16 text-gray-400">
                     <Bell className="h-12 w-12 mx-auto mb-3 text-gray-200" />
-                    <p className="font-semibold">No alerts here</p>
-                    <p className="text-sm mt-1">
-                        {tab === 'Unread' ? 'All alerts are read.' : `No ${tab.toLowerCase()} alerts.`}
+                    <p className="font-semibold text-gray-500">
+                        {tab === 'Missed Doses' ? 'No missed dose alerts' : 'No alerts here'}
+                    </p>
+                    <p className="text-sm mt-1 max-w-xs mx-auto">
+                        {tab === 'Unread'
+                            ? 'All caught up — every alert has been read.'
+                            : tab === 'Missed Doses'
+                            ? 'Alerts are automatically generated when your patient misses a scheduled dose. Check back soon.'
+                            : 'No alerts have been sent to you yet.'}
                     </p>
                 </div>
             ) : (
