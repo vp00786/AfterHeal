@@ -4,7 +4,8 @@ import api from '../../api/axios';
 import {
     FileText, Upload, Eye, Clock, Shield, Lock, Trash2, Pencil,
     Check, X, ArrowLeft, RefreshCw, FileImage, File, Download,
-    CloudUpload, AlertTriangle, FolderOpen
+    CloudUpload, AlertTriangle, FolderOpen, Share2, UserCheck,
+    UserX, ChevronDown, Users
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -163,13 +164,136 @@ const UploadZone = ({ onUpload, uploading }) => {
     );
 };
 
+// ─── Access Panel ────────────────────────────────────────────────────────────
+
+const AccessPanel = ({ record, doctors }) => {
+    const [accessList, setAccessList] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [selectedDoctor, setSelectedDoctor] = useState('');
+    const [granting, setGranting] = useState(false);
+    const [revoking, setRevoking] = useState(null);
+    const [toast, setToast] = useState(null);
+
+    const showMsg = (msg, type = 'success') => { setToast({ msg, type }); setTimeout(() => setToast(null), 3000); };
+
+    const fetchAccess = async () => {
+        setLoading(true);
+        try {
+            const { data } = await api.get(`/records/${record._id}/access`);
+            setAccessList(data);
+        } catch { }
+        setLoading(false);
+    };
+
+    useEffect(() => { fetchAccess(); }, [record._id]);
+
+    const handleGrant = async () => {
+        if (!selectedDoctor) return;
+        setGranting(true);
+        try {
+            await api.post(`/records/${record._id}/access`, { doctorId: selectedDoctor });
+            showMsg('Access granted!');
+            setSelectedDoctor('');
+            fetchAccess();
+        } catch (err) {
+            showMsg(err?.response?.data?.message || 'Failed to grant access', 'error');
+        }
+        setGranting(false);
+    };
+
+    const handleRevoke = async (doctorId) => {
+        setRevoking(doctorId);
+        try {
+            await api.delete(`/records/${record._id}/access/${doctorId}`);
+            showMsg('Access revoked.');
+            fetchAccess();
+        } catch {
+            showMsg('Failed to revoke access', 'error');
+        }
+        setRevoking(null);
+    };
+
+    const grantedDoctorIds = accessList.map(a => a.doctor_id);
+    const availableDoctors = doctors.filter(d => !grantedDoctorIds.includes(d._id));
+
+    return (
+        <div className="px-4 pb-4 pt-3 bg-indigo-50/60 border-t border-indigo-100 space-y-3">
+            <p className="text-xs font-bold text-indigo-700 uppercase tracking-wider flex items-center gap-1.5">
+                <Users className="h-3.5 w-3.5" /> Doctor Access
+            </p>
+
+            {/* Grant access row */}
+            <div className="flex gap-2">
+                <div className="relative flex-1">
+                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-gray-400 pointer-events-none" />
+                    <select
+                        className="w-full pl-3 pr-8 py-2 text-xs border border-gray-200 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-indigo-400 appearance-none text-gray-700"
+                        value={selectedDoctor}
+                        onChange={e => setSelectedDoctor(e.target.value)}
+                    >
+                        <option value="">Select a doctor…</option>
+                        {availableDoctors.map(d => (
+                            <option key={d._id} value={d._id}>Dr. {d.name}</option>
+                        ))}
+                    </select>
+                </div>
+                <button
+                    onClick={handleGrant}
+                    disabled={!selectedDoctor || granting}
+                    className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-40 transition-colors"
+                >
+                    {granting ? <RefreshCw className="h-3.5 w-3.5 animate-spin" /> : <UserCheck className="h-3.5 w-3.5" />}
+                    Grant
+                </button>
+            </div>
+
+            {/* Current access list */}
+            {loading ? (
+                <p className="text-xs text-gray-400 flex items-center gap-1"><RefreshCw className="h-3 w-3 animate-spin" /> Loading…</p>
+            ) : accessList.length === 0 ? (
+                <p className="text-xs text-gray-400 italic">No doctors have access to this document yet.</p>
+            ) : (
+                <div className="space-y-1.5">
+                    {accessList.map(a => (
+                        <div key={a._id} className="flex items-center justify-between bg-white rounded-lg px-3 py-2 border border-indigo-100">
+                            <div className="flex items-center gap-2">
+                                <div className="h-6 w-6 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 font-black text-xs">
+                                    {a.doctor?.name?.charAt(0) || 'D'}
+                                </div>
+                                <div>
+                                    <p className="text-xs font-semibold text-gray-800">Dr. {a.doctor?.name || a.doctor_id}</p>
+                                    <p className="text-[10px] text-gray-400">{a.doctor?.email}</p>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => handleRevoke(a.doctor_id)}
+                                disabled={revoking === a.doctor_id}
+                                className="flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-lg text-red-500 hover:bg-red-50 transition-colors disabled:opacity-40"
+                            >
+                                {revoking === a.doctor_id ? <RefreshCw className="h-3 w-3 animate-spin" /> : <UserX className="h-3 w-3" />}
+                                Revoke
+                            </button>
+                        </div>
+                    ))}
+                </div>
+            )}
+            {toast && (
+                <p className={`text-xs font-bold px-3 py-1.5 rounded-lg ${toast.type === 'error' ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700'}`}>
+                    {toast.msg}
+                </p>
+            )}
+        </div>
+    );
+};
+
 // ─── Record Card ─────────────────────────────────────────────────────────────
 
-const RecordCard = ({ record, onDelete, onUpdate }) => {
+const RecordCard = ({ record, onDelete, onUpdate, doctors }) => {
     const [editing, setEditing] = useState(false);
     const [saving, setSaving] = useState(false);
     const [deleting, setDeleting] = useState(false);
     const [confirmDelete, setConfirmDelete] = useState(false);
+    const [showAccess, setShowAccess] = useState(false);
     const [editForm, setEditForm] = useState({ title: record.title, description: record.description || '' });
 
     const { icon: Icon, bg, text, label } = getFileIcon(record.file_type);
@@ -283,6 +407,14 @@ const RecordCard = ({ record, onDelete, onUpdate }) => {
                         </div>
                         <div className="flex gap-1.5">
                             <button
+                                onClick={() => setShowAccess(v => !v)}
+                                className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors ${
+                                    showAccess ? 'bg-indigo-100 text-indigo-700' : 'text-gray-500 hover:text-indigo-700 hover:bg-indigo-50'
+                                }`}
+                            >
+                                <Share2 className="h-3.5 w-3.5" /> Share
+                            </button>
+                            <button
                                 onClick={() => setEditing(true)}
                                 className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg text-gray-500 hover:text-amber-700 hover:bg-amber-50 transition-colors"
                             >
@@ -317,6 +449,19 @@ const RecordCard = ({ record, onDelete, onUpdate }) => {
                     </>
                 )}
             </div>
+            <AnimatePresence>
+                {showAccess && (
+                    <motion.div
+                        key="access-panel"
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="overflow-hidden"
+                    >
+                        <AccessPanel record={record} doctors={doctors} />
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </motion.div>
     );
 };
@@ -326,6 +471,7 @@ const RecordCard = ({ record, onDelete, onUpdate }) => {
 const MedicalRecords = () => {
     const navigate = useNavigate();
     const [records, setRecords] = useState([]);
+    const [doctors, setDoctors] = useState([]);
     const [loading, setLoading] = useState(true);
     const [uploading, setUploading] = useState(false);
     const [showUpload, setShowUpload] = useState(false);
@@ -351,7 +497,13 @@ const MedicalRecords = () => {
         }
     };
 
-    useEffect(() => { fetchRecords(); }, []);
+    useEffect(() => {
+        fetchRecords();
+        // Fetch all doctors for the share panel
+        api.get('/auth/users')
+            .then(({ data }) => setDoctors(data.filter(u => u.role === 'doctor')))
+            .catch(err => console.error('Failed to fetch doctors:', err));
+    }, []);
 
     const handleUpload = async (formData) => {
         setUploading(true);
@@ -479,6 +631,7 @@ const MedicalRecords = () => {
                                     record={record}
                                     onDelete={handleDelete}
                                     onUpdate={handleUpdate}
+                                    doctors={doctors}
                                 />
                             ))}
                         </AnimatePresence>

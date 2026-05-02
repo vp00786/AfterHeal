@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import api from '../../api/axios';
 import {
     ArrowLeft, FileText, FileImage, File, Eye, Download,
-    Lock, Clock, Search, RefreshCw, FolderOpen, Shield, User
+    Lock, Clock, Search, RefreshCw, FolderOpen, Shield, User,
+    CheckCircle2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -89,21 +90,20 @@ const PatientRecords = () => {
     const [loadingRecords, setLoadingRecords]   = useState(false);
     const [search, setSearch]               = useState('');
 
-    // ── Fetch the doctor's patient list ──────────────────────────────────────
+    // ── Fetch patients who granted this doctor access ─────────────────────────
     useEffect(() => {
-        const fetchPatients = async () => {
+        const fetchAccessiblePatients = async () => {
             try {
-                const { data } = await api.get('/auth/users');
-                const pts = data.filter(u => u.role === 'patient');
-                setPatients(pts);
-                if (pts.length > 0) setSelectedPatient(pts[0]._id);
+                const { data } = await api.get('/records/accessible-patients');
+                setPatients(data);
+                if (data.length > 0) setSelectedPatient(data[0]._id);
             } catch (err) {
-                console.error('Error fetching patients:', err);
+                console.error('Error fetching accessible patients:', err);
             } finally {
                 setLoadingPatients(false);
             }
         };
-        fetchPatients();
+        fetchAccessiblePatients();
     }, []);
 
     // ── Fetch records when patient selection changes ──────────────────────────
@@ -144,7 +144,7 @@ const PatientRecords = () => {
                     </button>
                     <div>
                         <h1 className="text-xl font-bold text-gray-900 leading-none">Patient Documents</h1>
-                        <p className="text-sm text-gray-400 mt-0.5">Read-only, secure access</p>
+                        <p className="text-sm text-gray-400 mt-0.5">Patients who shared documents with you</p>
                     </div>
                 </div>
             </div>
@@ -155,7 +155,7 @@ const PatientRecords = () => {
                     <Shield className="h-5 w-5 mt-0.5 flex-shrink-0 text-blue-500" />
                     <p>
                         These records are <strong>strictly confidential</strong>. File access links expire after 1 hour.
-                        Only view records relevant to patient treatment.
+                        Only patients who have <strong>explicitly granted you access</strong> are shown below.
                     </p>
                 </div>
 
@@ -172,7 +172,7 @@ const PatientRecords = () => {
                                     <RefreshCw className="h-4 w-4 animate-spin" /> Loading patients…
                                 </div>
                             ) : patients.length === 0 ? (
-                                <p className="text-sm text-gray-400 py-2">No patients assigned to your account yet.</p>
+                                <p className="text-sm text-gray-400 py-2">No patients have shared documents with you yet.</p>
                             ) : (
                                 <div className="relative">
                                     <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -223,12 +223,17 @@ const PatientRecords = () => {
                                 <div>
                                     <p className="font-bold text-gray-900 text-sm">{selectedPatientName}</p>
                                     <p className="text-xs text-gray-400">
-                                        {loadingRecords ? 'Loading…' : `${filteredRecords.length} document${filteredRecords.length !== 1 ? 's' : ''}`}
+                                        {loadingRecords ? 'Loading…' : `${filteredRecords.length} document${filteredRecords.length !== 1 ? 's' : ''} shared with you`}
                                     </p>
                                 </div>
                             </div>
-                            <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full">
-                                <Lock className="h-3 w-3" /> Encrypted
+                            <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-full">
+                                    <Lock className="h-3 w-3" /> Encrypted
+                                </div>
+                                <div className="flex items-center gap-1.5 text-xs font-semibold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-full">
+                                    <CheckCircle2 className="h-3 w-3" /> Access Granted
+                                </div>
                             </div>
                         </div>
 
@@ -254,10 +259,10 @@ const PatientRecords = () => {
                     </div>
                 )}
 
-                {!selectedPatient && !loadingPatients && patients.length > 0 && (
+                        {!selectedPatient && !loadingPatients && patients.length > 0 && (
                     <div className="text-center py-12 text-gray-400">
                         <FolderOpen className="h-12 w-12 mx-auto mb-3 text-gray-200" />
-                        <p className="font-semibold">Select a patient to view their documents.</p>
+                        <p className="font-semibold">Select a patient to view their shared documents.</p>
                     </div>
                 )}
             </div>
